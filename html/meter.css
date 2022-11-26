@@ -108,7 +108,7 @@
     transition: background 0.1s linear;
 }
 
-.toggle-meter-btn > p {
+.toggle-meter-btn>p {
     text-align: center;
     line-height: 5.8vh;
     font-size: 1.2vh;
