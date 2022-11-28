@@ -6,7 +6,7 @@ local lastLocation = nil
 local mouseActive = false
 local PlayerJob = {}
 
--- used for polyzones
+-- used for zones
 local isInsidePickupZone = false
 local isInsideDropZone = false
 local Notified = false
@@ -123,7 +123,7 @@ local function GetDeliveryLocation()
 
     NpcData.LastDeliver = NpcData.CurrentDeliver
 
-    if not Config.UseTarget then -- added checks to disable distance checking if polyzone option is used
+    if not Config.UseTarget then -- added checks to disable distance checking if zone option is used
         CreateThread(function()
             while true do
                 local pos = GetEntityCoords(cache.ped)
@@ -241,7 +241,8 @@ local function calculateFareAmount()
 
             meterData['distanceTraveled'] += (newDistance/1609)
 
-            local fareAmount = ((meterData['distanceTraveled'])*Config.Meter["defaultPrice"])+Config.Meter["startingPrice"]
+            local fareAmount = ((meterData['distanceTraveled']) * Config.Meter.defaultPrice) + Config.Meter.startingPrice
+
             meterData['currentFare'] = math.floor(fareAmount)
 
             SendNUIMessage({
@@ -334,7 +335,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
             end
             QBCore.Functions.Notify(Lang:t("info.npc_on_gps"), 'success')
 
-            -- added checks to disable distance checking if polyzone option is used
+            -- added checks to disable distance checking if zone option is used
             if Config.UseTarget then
                 createNpcPickUpLocation()
             end
@@ -348,7 +349,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
             NpcData.LastNpc = NpcData.CurrentNpc
             NpcData.Active = true
 
-            -- added checks to disable distance checking if polyzone option is used
+            -- added checks to disable distance checking if zone option is used
             if not Config.UseTarget then
                 CreateThread(function()
                     while not NpcData.NpcTaken do
@@ -525,7 +526,7 @@ RegisterNetEvent('qb-taxijob:client:requestcab', function()
     TaxiGarage()
 end)
 
--- added checks to disable distance checking if polyzone option is used
+-- added checks to disable distance checking if zone option is used
 CreateThread(function()
     while true do
         if not Config.UseTarget then
@@ -575,7 +576,7 @@ end)
 
 -- POLY & TARGET Conversion code
 
--- setup qb-target
+-- setup ox_target
 function setupTarget()
     CreateThread(function()
         exports['qb-target']:SpawnPed({
