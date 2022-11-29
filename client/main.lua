@@ -105,13 +105,13 @@ end
 local function GetDeliveryLocation()
     NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
 
-    if NpcData.LastDeliver ~= nil then
+    if NpcData.LastDeliver then
         while NpcData.LastDeliver ~= NpcData.CurrentDeliver do
             NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
         end
     end
 
-    if NpcData.DeliveryBlip ~= nil then
+    if NpcData.DeliveryBlip then
         RemoveBlip(NpcData.DeliveryBlip)
     end
 
@@ -158,7 +158,7 @@ local function GetDeliveryLocation()
 
                             QBCore.Functions.Notify(Lang:t("info.person_was_dropped_off"), 'success')
 
-                            if NpcData.DeliveryBlip ~= nil then
+                            if NpcData.DeliveryBlip then
                                 RemoveBlip(NpcData.DeliveryBlip)
                             end
 
@@ -260,15 +260,9 @@ function TaxiGarage()
         vehicleMenu[#vehicleMenu + 1] = {
             title = v.label,
             event = "qb-taxi:client:TakeVehicle",
-            args = {model = v.model}
-        }
-    end
-
-    -- qb-bossmenu:client:openMenu
-    if PlayerJob.name == "taxi" and PlayerJob.isboss and Config.UseTarget then
-        vehicleMenu[#vehicleMenu + 1] = {
-            title = Lang:t("menu.boss_menu"),
-            event = "qb-bossmenu:client:forceMenu"
+            args = {
+                model = v.model
+            }
         }
     end
 
@@ -317,7 +311,8 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
     if whitelistedVehicle() then
         if not NpcData.Active then
             NpcData.CurrentNpc = math.random(1, #Config.NPCLocations.TakeLocations)
-            if NpcData.LastNpc ~= nil then
+
+            if NpcData.LastNpc then
                 while NpcData.LastNpc ~= NpcData.CurrentNpc do
                     NpcData.CurrentNpc = math.random(1, #Config.NPCLocations.TakeLocations)
                 end
@@ -326,13 +321,18 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
             local Gender = math.random(1, #Config.NpcSkins)
             local PedSkin = math.random(1, #Config.NpcSkins[Gender])
             local model = joaat(Config.NpcSkins[Gender][PedSkin])
+
             lib.requestModel(model)
+
             NpcData.Npc = CreatePed(3, model, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z - 0.98, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].w, false, true)
+
             PlaceObjectOnGroundProperly(NpcData.Npc)
             FreezeEntityPosition(NpcData.Npc, true)
-            if NpcData.NpcBlip ~= nil then
+
+            if NpcData.NpcBlip then
                 RemoveBlip(NpcData.NpcBlip)
             end
+
             QBCore.Functions.Notify(Lang:t("info.npc_on_gps"), 'success')
 
             -- added checks to disable distance checking if zone option is used
@@ -391,7 +391,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
 
                                     QBCore.Functions.Notify(Lang:t("info.go_to_location"))
 
-                                    if NpcData.NpcBlip ~= nil then
+                                    if NpcData.NpcBlip then
                                         RemoveBlip(NpcData.NpcBlip)
                                     end
 
@@ -579,31 +579,19 @@ end)
 -- setup ox_target
 function setupTarget()
     CreateThread(function()
-        exports['qb-target']:SpawnPed({
-            model = 'a_m_m_indian_01',
+        exports.ox_target:addBoxZone({
             coords = vec4(901.34, -170.06, 74.08, 228.81),
-            minusOne = true,
-            freeze = true,
-            invincible = true,
-            blockevents = true,
-            animDict = 'abigail_mcs_1_concat-0',
-            anim = 'csb_abigail_dual-0',
-            flag = 1,
-            scenario = 'WORLD_HUMAN_AA_COFFEE',
-            target = {
-                options = {
-                    {
-                        type = "client",
-                        event = "qb-taxijob:client:requestcab",
-                        icon = "fas fa-sign-in-alt",
-                        label = '🚕 Request Taxi Cab',
-                        job = "taxi"
-                    }
-                },
-                distance = 2.5
-            },
-            spawnNow = true,
-            currentpednumber = 0
+            size = vec3(2, 2, 2),
+            rotation = 0.0,
+            options = {
+                {
+                    name = 'qb-taxijob:cab',
+                    event = "qb-taxijob:client:requestcab",
+                    icon = "fas fa-sign-in-alt",
+                    label = '🚕 Request Taxi Cab',
+                    distance = 2.5
+                }
+            }
         })
     end)
 end
@@ -688,7 +676,7 @@ function callNpcPoly()
 
                     QBCore.Functions.Notify(Lang:t("info.go_to_location"))
 
-                    if NpcData.NpcBlip ~= nil then
+                    if NpcData.NpcBlip then
                         RemoveBlip(NpcData.NpcBlip)
                     end
 
@@ -734,7 +722,7 @@ function dropNpcPoly()
 
                     QBCore.Functions.Notify(Lang:t("info.person_was_dropped_off"), 'success')
 
-                    if NpcData.DeliveryBlip ~= nil then
+                    if NpcData.DeliveryBlip then
                         RemoveBlip(NpcData.DeliveryBlip)
                     end
 
