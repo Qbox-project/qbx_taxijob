@@ -1,8 +1,6 @@
 fx_version 'cerulean'
 game 'gta5'
 
-ui_page 'html/meter.html'
-
 shared_scripts {
     '@qb-core/shared/locale.lua',
     'locales/en.lua',
@@ -23,9 +21,6 @@ files {
     'html/g5-meter.png'
 }
 
-dependencies {
-    'qb-core',
-    'ox_lib'
-}
+ui_page 'html/meter.html'
 
 lua54 'yes'

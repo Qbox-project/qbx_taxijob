@@ -415,7 +415,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
 end)
 
 RegisterNetEvent('qb-taxi:client:toggleMeter', function()
-    if IsPedInAnyVehicle(ped, false) then
+    if IsPedInAnyVehicle(cache.ped, false) then
         if whitelistedVehicle() then
             if not meterIsOpen and IsDriver() then
                 SendNUIMessage({
