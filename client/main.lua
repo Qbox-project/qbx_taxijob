@@ -87,7 +87,7 @@ local function IsDriver()
 end
 
 local function DrawText3D(x, y, z, text)
-	SetTextScale(0.35, 0.35)
+    SetTextScale(0.35, 0.35)
     SetTextFont(4)
     SetTextColour(255, 255, 255, 215)
     BeginTextCommandDisplayText("STRING")
@@ -156,7 +156,10 @@ local function GetDeliveryLocation()
                                 action = "resetMeter"
                             })
 
-                            QBCore.Functions.Notify(Lang:t("info.person_was_dropped_off"), 'success')
+                            lib.notify({
+                                description = Lang:t("info.person_was_dropped_off"),
+                                type = 'success'
+                            })
 
                             if NpcData.DeliveryBlip then
                                 RemoveBlip(NpcData.DeliveryBlip)
@@ -183,38 +186,38 @@ local function GetDeliveryLocation()
 end
 
 local function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coords, maxDistance)
-	local nearbyEntities = {}
+    local nearbyEntities = {}
 
-	if coords then
-		coords = vec3(coords.x, coords.y, coords.z)
-	else
-		coords = GetEntityCoords(cache.ped)
-	end
+    if coords then
+        coords = vec3(coords.x, coords.y, coords.z)
+    else
+        coords = GetEntityCoords(cache.ped)
+    end
 
-	for k, entity in pairs(entities) do
-		local distance = #(coords - GetEntityCoords(entity))
+    for k, entity in pairs(entities) do
+        local distance = #(coords - GetEntityCoords(entity))
 
-		if distance <= maxDistance then
-			nearbyEntities[#nearbyEntities + 1] = isPlayerEntities and k or entity
-		end
-	end
+        if distance <= maxDistance then
+            nearbyEntities[#nearbyEntities + 1] = isPlayerEntities and k or entity
+        end
+    end
 
-	return nearbyEntities
+    return nearbyEntities
 end
 
 local function GetVehiclesInArea(coords, maxDistance) -- Vehicle inspection in designated area
-	return EnumerateEntitiesWithinDistance(GetGamePool('CVehicle'), false, coords, maxDistance)
+    return EnumerateEntitiesWithinDistance(GetGamePool('CVehicle'), false, coords, maxDistance)
 end
 
 local function IsSpawnPointClear(coords, maxDistance) -- Check the spawn point to see if it's empty or not:
-	return #GetVehiclesInArea(coords, maxDistance) == 0
+    return #GetVehiclesInArea(coords, maxDistance) == 0
 end
 
 local function getVehicleSpawnPoint()
     local near = nil
-	local distance = 10000
+    local distance = 10000
 
-	for k, v in pairs(Config.CabSpawns) do
+    for k, v in pairs(Config.CabSpawns) do
         if IsSpawnPointClear(vec3(v.x, v.y, v.z), 2.5) then
             local pos = GetEntityCoords(cache.ped)
             local cur_distance = #(pos - vec3(v.x, v.y, v.z))
@@ -226,7 +229,7 @@ local function getVehicleSpawnPoint()
         end
     end
 
-	return near
+    return near
 end
 
 local function calculateFareAmount()
@@ -298,10 +301,16 @@ RegisterNetEvent("qb-taxi:client:TakeVehicle", function(data)
                 SetVehicleEngineOn(veh, true, true)
             end, data.model, coords, true)
         else
-            QBCore.Functions.Notify(Lang:t("info.no_spawn_point"), "error")
+            lib.notify({
+                description = Lang:t("info.no_spawn_point"),
+                type = 'error'
+            })
         end
     else
-        QBCore.Functions.Notify(Lang:t("info.no_spawn_point"), 'error')
+        lib.notify({
+            description = Lang:t("info.no_spawn_point"),
+            type = 'error'
+        })
         return
     end
 end)
@@ -333,7 +342,10 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                 RemoveBlip(NpcData.NpcBlip)
             end
 
-            QBCore.Functions.Notify(Lang:t("info.npc_on_gps"), 'success')
+            lib.notify({
+                description = Lang:t("info.npc_on_gps"),
+                type = 'success'
+            })
 
             -- added checks to disable distance checking if zone option is used
             if Config.UseTarget then
@@ -389,7 +401,9 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                                     FreezeEntityPosition(NpcData.Npc, false)
                                     TaskEnterVehicle(NpcData.Npc, cache.vehicle, -1, freeSeat, 1.0, 0)
 
-                                    QBCore.Functions.Notify(Lang:t("info.go_to_location"))
+                                    lib.notify({
+                                        description = Lang:t("info.go_to_location")
+                                    })
 
                                     if NpcData.NpcBlip then
                                         RemoveBlip(NpcData.NpcBlip)
@@ -407,15 +421,21 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                 end)
             end
         else
-            QBCore.Functions.Notify(Lang:t("error.already_mission"))
+            lib.notify({
+                description = Lang:t("error.already_mission"),
+                type = 'error'
+            })
         end
     else
-        QBCore.Functions.Notify(Lang:t("error.not_in_taxi"))
+        lib.notify({
+            description = Lang:t("error.not_in_taxi"),
+            type = 'error'
+        })
     end
 end)
 
 RegisterNetEvent('qb-taxi:client:toggleMeter', function()
-    if IsPedInAnyVehicle(cache.ped, false) then
+    if cache.vehicle then
         if whitelistedVehicle() then
             if not meterIsOpen and IsDriver() then
                 SendNUIMessage({
@@ -434,10 +454,16 @@ RegisterNetEvent('qb-taxi:client:toggleMeter', function()
                 meterIsOpen = false
             end
         else
-            QBCore.Functions.Notify(Lang:t("error.missing_meter"), 'error')
+            lib.notify({
+                description = Lang:t("error.missing_meter"),
+                type = 'error'
+            })
         end
     else
-        QBCore.Functions.Notify(Lang:t("error.no_vehicle"), 'error')
+        lib.notify({
+            description = Lang:t("error.no_vehicle"),
+            type = 'error'
+        })
     end
 end)
 
@@ -447,7 +473,10 @@ RegisterNetEvent('qb-taxi:client:enableMeter', function()
             action = "toggleMeter"
         })
     else
-        QBCore.Functions.Notify(Lang:t("error.not_active_meter"), 'error')
+        lib.notify({
+            description = Lang:t("error.not_active_meter"),
+            type = 'error'
+        })
     end
 end)
 
@@ -461,7 +490,10 @@ RegisterNetEvent('qb-taxi:client:toggleMuis', function()
             mouseActive = true
         end
     else
-        QBCore.Functions.Notify(Lang:t("error.no_meter_sight"), 'error')
+        lib.notify({
+            description = Lang:t("error.no_meter_sight"),
+            type = 'error'
+        })
     end
 end)
 
@@ -507,7 +539,7 @@ end)
 
 CreateThread(function()
     while true do
-        if not IsPedInAnyVehicle(cache.ped, false) then
+        if not cache.vehicle then
             if meterIsOpen then
                 SendNUIMessage({
                     action = "openMeter",
@@ -549,7 +581,7 @@ CreateThread(function()
                                 DrawText3D(Config.Location.x, Config.Location.y, Config.Location.z + 0.3, Lang:t("info.vehicle_parking"))
 
                                 if IsControlJustReleased(0, 38) then
-                                    if IsPedInAnyVehicle(cache.ped, false) then
+                                    if cache.vehicle then
                                         DeleteVehicle(cache.vehicle)
                                     end
                                 end
@@ -587,7 +619,7 @@ function setupTarget()
                 {
                     name = 'qb-taxijob:cab',
                     event = "qb-taxijob:client:requestcab",
-                    icon = "fas fa-sign-in-alt",
+                    icon = "fa-solid fa-right-to-bracket",
                     label = '🚕 Request Taxi Cab',
                     distance = 2.5
                 }
@@ -674,7 +706,9 @@ function callNpcPoly()
                     FreezeEntityPosition(NpcData.Npc, false)
                     TaskEnterVehicle(NpcData.Npc, cache.vehicle, -1, freeSeat, 1.0, 0)
 
-                    QBCore.Functions.Notify(Lang:t("info.go_to_location"))
+                    lib.notify({
+                        description = Lang:t("info.go_to_location")
+                    })
 
                     if NpcData.NpcBlip then
                         RemoveBlip(NpcData.NpcBlip)
@@ -720,7 +754,10 @@ function dropNpcPoly()
                         action = "resetMeter"
                     })
 
-                    QBCore.Functions.Notify(Lang:t("info.person_was_dropped_off"), 'success')
+                    lib.notify({
+                        description = Lang:t("info.person_was_dropped_off"),
+                        type = 'success'
+                    })
 
                     if NpcData.DeliveryBlip then
                         RemoveBlip(NpcData.DeliveryBlip)
@@ -777,7 +814,7 @@ CreateThread(function()
     while true do
         if isPlayerInsideZone then
             if IsControlJustReleased(0, 38) then
-                if IsPedInAnyVehicle(cache.ped, false) then
+                if cache.vehicle then
                     if meterIsOpen then
                         TriggerEvent('qb-taxi:client:toggleMeter')
 
@@ -790,7 +827,10 @@ CreateThread(function()
 
                     DeleteVehicle(cache.vehicle)
 
-                    QBCore.Functions.Notify(Lang:t("info.taxi_returned"), 'success')
+                    lib.notify({
+                        description = Lang:t("info.taxi_returned"),
+                        type = 'success'
+                    })
                 end
             end
         end
