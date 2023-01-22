@@ -122,6 +122,66 @@ end
 local zone
 local delieveryZone
 
+local function GetDeliveryLocation()
+    NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
+    if NpcData.LastDeliver ~= nil then
+        while NpcData.LastDeliver ~= NpcData.CurrentDeliver do
+            NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
+        end
+    end
+
+    if NpcData.DeliveryBlip ~= nil then
+        RemoveBlip(NpcData.DeliveryBlip)
+    end
+    NpcData.DeliveryBlip = AddBlipForCoord(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z)
+    SetBlipColour(NpcData.DeliveryBlip, 3)
+    SetBlipRoute(NpcData.DeliveryBlip, true)
+    SetBlipRouteColour(NpcData.DeliveryBlip, 3)
+    NpcData.LastDeliver = NpcData.CurrentDeliver
+    if not Config.UseTarget then -- added checks to disable distance checking if polyzone option is used
+        CreateThread(function()
+            while true do
+                local pos = GetEntityCoords(cache.ped)
+                local dist = #(pos - vector3(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z))
+                if dist < 20 then
+                    DrawMarker(2, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, 0, 0, 0, 1, 0, 0, 0)
+                    if dist < 5 then
+                        DrawText3D(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z, Lang:t("info.drop_off_npc"))
+                        if IsControlJustPressed(0, 38) then
+                            TaskLeaveVehicle(NpcData.Npc, cache.vehicle, 0)
+                            SetEntityAsMissionEntity(NpcData.Npc, false, true)
+                            SetEntityAsNoLongerNeeded(NpcData.Npc)
+                            local targetCoords = Config.NPCLocations.TakeLocations[NpcData.LastNpc]
+                            TaskGoStraightToCoord(NpcData.Npc, targetCoords.x, targetCoords.y, targetCoords.z, 1.0, -1, 0.0, 0.0)
+                            SendNUIMessage({
+                                action = "toggleMeter"
+                            })
+                            TriggerServerEvent('qb-taxi:server:NpcPay', meterData.currentFare)
+                            meterActive = false
+                            SendNUIMessage({
+                                action = "resetMeter"
+                            })
+                            QBCore.Functions.Notify(Lang:t("info.person_was_dropped_off"), 'success')
+                            if NpcData.DeliveryBlip ~= nil then
+                                RemoveBlip(NpcData.DeliveryBlip)
+                            end
+                            local RemovePed = function(p)
+                                SetTimeout(60000, function()
+                                    DeletePed(p)
+                                end)
+                            end
+                            RemovePed(NpcData.Npc)
+                            ResetNpcTask()
+                            break
+                        end
+                    end
+                end
+                Wait(0)
+            end
+        end)
+    end
+end
+
 local function callNpcPoly()
     CreateThread(function()
         while not NpcData.NpcTaken do
@@ -190,65 +250,7 @@ local function createNpcPickUpLocation()
     })
 end
 
-local function GetDeliveryLocation()
-    NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
-    if NpcData.LastDeliver ~= nil then
-        while NpcData.LastDeliver ~= NpcData.CurrentDeliver do
-            NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
-        end
-    end
 
-    if NpcData.DeliveryBlip ~= nil then
-        RemoveBlip(NpcData.DeliveryBlip)
-    end
-    NpcData.DeliveryBlip = AddBlipForCoord(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z)
-    SetBlipColour(NpcData.DeliveryBlip, 3)
-    SetBlipRoute(NpcData.DeliveryBlip, true)
-    SetBlipRouteColour(NpcData.DeliveryBlip, 3)
-    NpcData.LastDeliver = NpcData.CurrentDeliver
-    if not Config.UseTarget then -- added checks to disable distance checking if polyzone option is used
-        CreateThread(function()
-            while true do
-                local pos = GetEntityCoords(cache.ped)
-                local dist = #(pos - vector3(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z))
-                if dist < 20 then
-                    DrawMarker(2, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, 0, 0, 0, 1, 0, 0, 0)
-                    if dist < 5 then
-                        DrawText3D(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z, Lang:t("info.drop_off_npc"))
-                        if IsControlJustPressed(0, 38) then
-                            TaskLeaveVehicle(NpcData.Npc, cache.vehicle, 0)
-                            SetEntityAsMissionEntity(NpcData.Npc, false, true)
-                            SetEntityAsNoLongerNeeded(NpcData.Npc)
-                            local targetCoords = Config.NPCLocations.TakeLocations[NpcData.LastNpc]
-                            TaskGoStraightToCoord(NpcData.Npc, targetCoords.x, targetCoords.y, targetCoords.z, 1.0, -1, 0.0, 0.0)
-                            SendNUIMessage({
-                                action = "toggleMeter"
-                            })
-                            TriggerServerEvent('qb-taxi:server:NpcPay', meterData.currentFare)
-                            meterActive = false
-                            SendNUIMessage({
-                                action = "resetMeter"
-                            })
-                            QBCore.Functions.Notify(Lang:t("info.person_was_dropped_off"), 'success')
-                            if NpcData.DeliveryBlip ~= nil then
-                                RemoveBlip(NpcData.DeliveryBlip)
-                            end
-                            local RemovePed = function(p)
-                                SetTimeout(60000, function()
-                                    DeletePed(p)
-                                end)
-                            end
-                            RemovePed(NpcData.Npc)
-                            ResetNpcTask()
-                            break
-                        end
-                    end
-                end
-                Wait(0)
-            end
-        end)
-    end
-end
 
 local function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coords, maxDistance)
 	local nearbyEntities = {}
@@ -553,12 +555,6 @@ function setupCabParkingLocation()
         onExit = onExitCabZone
     })
 end
-
-
-
-
-
-
 
 RegisterNetEvent("qb-taxi:client:TakeVehicle", function(data)
     local SpawnPoint = getVehicleSpawnPoint()
