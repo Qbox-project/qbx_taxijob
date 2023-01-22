@@ -38,7 +38,18 @@ local NpcData = {
 local CabParkingZone = nil
 local CabBossZone = nil
 
+local taxiPed = nil
+
 -- events
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if resourceName == GetCurrentResourceName() and QBCore.Functions.GetPlayerData() ~= {} then
+        if Config.UseTarget then
+            DeletePed(taxiPed)
+        end
+        
+    end
+end)
 AddEventHandler('onResourceStart', function(resourceName)
     if resourceName == GetCurrentResourceName() and QBCore.Functions.GetPlayerData() ~= {} then
         if LocalPlayer.state.isLoggedIn then
@@ -50,6 +61,10 @@ AddEventHandler('onResourceStart', function(resourceName)
                 end
             end
         end
+        if Config.UseTarget then
+            setupTarget()
+        end
+        
     end
 end)
 
@@ -61,9 +76,9 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     if PlayerJob.name == "taxi" then
             
         setupCabParkingLocation()
-        --if PlayerJob.isboss then
+        if PlayerJob.isboss then
             setupCabBossLocation()
-        --end
+        end
     end
 end)
 
@@ -515,34 +530,26 @@ end)
 
 -- POLY & TARGET Conversion code
 
--- setup qb-target
 function setupTarget()
     CreateThread(function()
-        exports['qb-target']:SpawnPed({
-            model = 'a_m_m_indian_01',
-            coords = vector4(901.34, -170.06, 74.08, 228.81),
-            minusOne = true,
-            freeze = true,
-            invincible = true,
-            blockevents = true,
-            animDict = 'abigail_mcs_1_concat-0',
-            anim = 'csb_abigail_dual-0',
-            flag = 1,
-            scenario = 'WORLD_HUMAN_AA_COFFEE',
-            target = {
-                options = {
-                    {
-                        type = "client",
-                        event = "qb-taxijob:client:requestcab",
-                        icon = "fas fa-sign-in-alt",
-                        label = '🚕 Request Taxi Cab',
-                        job = "taxi",
-                    }
-                },
-            distance = 2.5,
-            },
-            spawnNow = true,
-            currentpednumber = 0,
+        RequestModel(`a_m_m_indian_01`)
+        while not HasModelLoaded(`a_m_m_indian_01`) do
+            Wait(1)
+        end
+        taxiPed = CreatePed(3, `a_m_m_indian_01`, 901.34, -170.06, 74.08 - 1.0, 228.81, false, true)
+        SetBlockingOfNonTemporaryEvents(taxiPed, true)
+        TaskPlayAnim(taxiPed, 'abigail_mcs_1_concat-0', 'csb_abigail_dual-0', 8.0, 0, -1, 1, false, false, false)
+        TaskStartScenarioInPlace(taxiPed, "WORLD_HUMAN_AA_COFFEE", 0, false)
+        FreezeEntityPosition(taxiPed, true)
+        SetEntityInvincible(taxiPed, true)
+        exports.ox_target:addLocalEntity(taxiPed, {
+            {
+                type = "client",
+                event = "qb-taxijob:client:requestcab",
+                icon = "fas fa-sign-in-alt",
+                label = '🚕 Request Taxi Cab',
+                job = "taxi",
+            }
         })
     end)
 end
