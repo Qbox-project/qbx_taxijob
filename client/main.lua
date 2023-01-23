@@ -34,9 +34,6 @@ local NpcData = {
     CountDown = 180
 }
 
-local CabParkingZone = nil
-local CabBossZone = nil
-
 local taxiPed = nil
 
 local function setupTarget()
@@ -337,7 +334,7 @@ local function onExitCabBossZone()
 end
 
 local function setupCabBossLocation()
-    CabBossZone = lib.zones.box({
+    lib.zones.box({
         coords = vector3(Config.BossMenu.x, Config.BossMenu.y, Config.BossMenu.z),
         size = vec3(2.5, 2.5, 2.5),
         rotation = 45,
@@ -546,7 +543,7 @@ local function onExitCabZone()
 end
 
 function setupCabParkingLocation()
-    CabParkingZone = lib.zones.box({
+    lib.zones.box({
         coords = vector3(Config.Location.x, Config.Location.y, Config.Location.z),
         size = vec3(4.0, 4.0, 4.0),
         rotation = 55,
