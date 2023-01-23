@@ -227,7 +227,7 @@ end
 local function onEnterCallZone()
     if whitelistedVehicle() and not isInsidePickupZone and not NpcData.NpcTaken then
         isInsidePickupZone = true
-        lib.drawText(Lang:t("info.call_npc"), Config.DefaultTextLocation)
+        lib.showTextUI(Lang:t("info.call_npc"), {position = Config.DefaultTextLocation})
         callNpcPoly()
     end
 end
@@ -416,7 +416,7 @@ end
 local function onEnterDropZone()
     if whitelistedVehicle() and not isInsideDropZone and NpcData.NpcTaken then
         isInsideDropZone = true
-        lib.drawText(Lang:t("info.drop_off_npc"), Config.DefaultTextLocation)
+        lib.showTextUI(Lang:t("info.drop_off_npc"), {position = Config.DefaultTextLocation})
         dropNpcPoly()
     end
 end
@@ -523,7 +523,7 @@ local function onEnterCabZone()
 
     if Config.UseTarget then
         if whitelistedVehicle() then
-            lib.drawText(Lang:t("info.vehicle_parking"), Config.DefaultTextLocation)
+            lib.showTextUI(Lang:t("info.vehicle_parking"), {position = Config.DefaultTextLocation})
         end
     else
         nonTargetEnter()
@@ -531,7 +531,7 @@ local function onEnterCabZone()
 end
 
 local function onExitCabZone()
-    exports['qb-core']:HideText()
+    lib.hideTextUI()
     isPlayerInsideCabZone = false
 end
 
