@@ -98,7 +98,7 @@ local function whitelistedVehicle()
 end
 
 local function IsDriver()
-    return GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId(), false), -1) == PlayerPedId()
+    return GetPedInVehicleSeat(GetVehiclePedIsIn(cache.ped, false), -1) == cache.ped
 end
 
 local function DrawText3D(x, y, z, text)
@@ -197,7 +197,7 @@ local function callNpcPoly()
 
                     meterIsOpen = true
                     meterActive = true
-                    lastLocation = GetEntityCoords(PlayerPedId())
+                    lastLocation = GetEntityCoords(cache.ped)
                     SendNUIMessage({
                         action = "openMeter",
                         toggle = true,
@@ -227,7 +227,7 @@ end
 local function onEnterCallZone()
     if whitelistedVehicle() and not isInsidePickupZone and not NpcData.NpcTaken then
         isInsidePickupZone = true
-        exports['qb-core']:DrawText(Lang:t("info.call_npc"), Config.DefaultTextLocation)
+        lib.drawText(Lang:t("info.call_npc"), Config.DefaultTextLocation)
         callNpcPoly()
     end
 end
@@ -254,8 +254,7 @@ local function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coord
 	if coords then
 		coords = vector3(coords.x, coords.y, coords.z)
 	else
-		local playerPed = PlayerPedId()
-		coords = GetEntityCoords(playerPed)
+		coords = GetEntityCoords(cache.ped)
 	end
 	for k, entity in pairs(entities) do
 		local distance = #(coords - GetEntityCoords(entity))
@@ -279,8 +278,7 @@ local function getVehicleSpawnPoint()
 	local distance = 10000
 	for k, v in pairs(Config.CabSpawns) do
         if IsSpawnPointClear(vector3(v.x, v.y, v.z), 2.5) then
-            local ped = PlayerPedId()
-            local pos = GetEntityCoords(ped)
+            local pos = GetEntityCoords(cache.ped)
             local cur_distance = #(pos - vector3(v.x, v.y, v.z))
             if cur_distance < distance then
                 distance = cur_distance
@@ -294,7 +292,7 @@ end
 local function calculateFareAmount()
     if meterIsOpen and meterActive then
         local startPos = lastLocation
-        local newPos = GetEntityCoords(PlayerPedId())
+        local newPos = GetEntityCoords(cache.ped)
         if startPos ~= newPos then
             local newDistance = #(startPos - newPos)
             lastLocation = newPos
@@ -317,7 +315,7 @@ local function onEnterCabBossZone()
     isPlayerInsideBossZone = true
     CreateThread(function()
         while isPlayerInsideBossZone do
-            local pos = GetEntityCoords(PlayerPedId())
+            local pos = GetEntityCoords(cache.ped)
             if #(pos - Config.BossMenu) < 2.0 then
                 DrawText3D(Config.BossMenu.x, Config.BossMenu.y,Config.BossMenu.z, "~g~E~w~ - Boss Menu")
                 if IsControlJustReleased(0, 38) then
@@ -345,29 +343,25 @@ local function setupCabBossLocation()
 end
 
 AddEventHandler('onResourceStop', function(resourceName)
-    if resourceName == GetCurrentResourceName() and QBCore.Functions.GetPlayerData() ~= {} then
-        if Config.UseTarget then
-            DeletePed(taxiPed)
-        end
-        
+    if resourceName ~= GetCurrentResourceName() or table.type(QBCore.Functions.GetPlayerData()) == 'empty' or not Config.UseTarget then return end
+    if Config.UseTarget then
+        DeletePed(taxiPed)
     end
 end)
 
 AddEventHandler('onResourceStart', function(resourceName)
-    if resourceName == GetCurrentResourceName() and QBCore.Functions.GetPlayerData() ~= {} then
-        if LocalPlayer.state.isLoggedIn then
-            PlayerJob = QBCore.Functions.GetPlayerData().job
-            if PlayerJob.name == "taxi" then
-                setupCabParkingLocation()
-                if PlayerJob.isboss then
-                    setupCabBossLocation()
-                end
+    if resourceName ~= GetCurrentResourceName() or table.type(QBCore.Functions.GetPlayerData()) == 'empty' or not Config.UseTarget then return end
+    if LocalPlayer.state.isLoggedIn then
+        PlayerJob = QBCore.Functions.GetPlayerData().job
+        if PlayerJob.name == "taxi" then
+            setupCabParkingLocation()
+            if PlayerJob.isboss then
+                setupCabBossLocation()
             end
         end
-        if Config.UseTarget then
-            setupTarget()
-        end
-        
+    end
+    if Config.UseTarget then
+        setupTarget()
     end
 end)
 
@@ -422,7 +416,7 @@ end
 local function onEnterDropZone()
     if whitelistedVehicle() and not isInsideDropZone and NpcData.NpcTaken then
         isInsideDropZone = true
-        exports['qb-core']:DrawText(Lang:t("info.drop_off_npc"), Config.DefaultTextLocation)
+        lib.drawText(Lang:t("info.drop_off_npc"), Config.DefaultTextLocation)
         dropNpcPoly()
     end
 end
@@ -445,11 +439,10 @@ end
 function dropNpcPoly()
     CreateThread(function()
         while NpcData.NpcTaken do
-            local ped = PlayerPedId()
             if isInsideDropZone then
                 if IsControlJustPressed(0, 38) then
                     exports['qb-core']:KeyPressed()
-                    local veh = GetVehiclePedIsIn(ped, 0)
+                    local veh = GetVehiclePedIsIn(cache.ped, 0)
                     TaskLeaveVehicle(NpcData.Npc, veh, 0)
                     SetEntityAsMissionEntity(NpcData.Npc, false, true)
                     SetEntityAsNoLongerNeeded(NpcData.Npc)
@@ -530,7 +523,7 @@ local function onEnterCabZone()
 
     if Config.UseTarget then
         if whitelistedVehicle() then
-            exports['qb-core']:DrawText(Lang:t("info.vehicle_parking"), Config.DefaultTextLocation)
+            lib.drawText(Lang:t("info.vehicle_parking"), Config.DefaultTextLocation)
         end
     else
         nonTargetEnter()
@@ -564,7 +557,7 @@ RegisterNetEvent("qb-taxi:client:TakeVehicle", function(data)
                 SetVehicleNumberPlateText(veh, "TAXI"..tostring(math.random(1000, 9999)))
                 exports['LegacyFuel']:SetFuel(veh, 100.0)
                 SetEntityHeading(veh, Config.CabSpawns[SpawnPoint].w)
-                TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+                TaskWarpPedIntoVehicle(cache.ped, veh, -1)
                 TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
                 SetVehicleEngineOn(veh, true, true)
             end, data.model, coords, true)
@@ -672,8 +665,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
 end)
 
 RegisterNetEvent('qb-taxi:client:toggleMeter', function()
-    local ped = PlayerPedId()
-    if IsPedInAnyVehicle(ped, false) then
+    if IsPedInAnyVehicle(cache.ped, false) then
         if whitelistedVehicle() then
             if not meterIsOpen and IsDriver() then
                 SendNUIMessage({
@@ -724,7 +716,7 @@ end)
 RegisterNUICallback('enableMeter', function(data, cb)
     meterActive = data.enabled
     if not meterActive then resetMeter() end
-    lastLocation = GetEntityCoords(PlayerPedId())
+    lastLocation = GetEntityCoords(cache.ped)
     cb('ok')
 end)
 
@@ -756,7 +748,7 @@ end)
 
 CreateThread(function()
     while true do
-        if not IsPedInAnyVehicle(PlayerPedId(), false) then
+        if not IsPedInAnyVehicle(cache.ped, false) then
             if meterIsOpen then
                 SendNUIMessage({
                     action = "openMeter",
