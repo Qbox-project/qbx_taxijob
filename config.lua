@@ -4,10 +4,10 @@ Config = Config or {}
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
 -- Config.UseTarget = GetConvar('UseTarget', 'false')
 
-Config.DefaultTextLocation = "left" -- left, right, top
+Config.DefaultTextLocation = "left-center" -- 'right-center' or 'left-center' or 'top-center'
 
 Config.AllowedVehicles = {
-   [1] = {model = "taxi", label = Lang:t("info.taxi_label_1")},
+    [1] = {model = "taxi", label = Lang:t("info.taxi_label_1")},
 }
 
 Config.Meter = {

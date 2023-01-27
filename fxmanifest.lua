@@ -8,6 +8,7 @@ ui_page 'html/meter.html'
 
 shared_scripts {
 	'@qb-core/shared/locale.lua',
+	'@ox_lib/init.lua',
 	'locales/en.lua', -- Change to the language you want to use
 	'config.lua',
 }
@@ -18,11 +19,6 @@ dependencies {
 }
 
 client_scripts {
-	'@PolyZone/client.lua',
-	'@PolyZone/BoxZone.lua',
-	'@PolyZone/EntityZone.lua',
-	'@PolyZone/CircleZone.lua',
-	'@PolyZone/ComboZone.lua',
 	'client/main.lua',
 }
 
