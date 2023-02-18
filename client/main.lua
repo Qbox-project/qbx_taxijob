@@ -233,6 +233,7 @@ local function onEnterCallZone()
 end
 
 local function onExitCallZone()
+    lib.hideTextUI()
     isInsidePickupZone = false
 end
 
@@ -328,6 +329,7 @@ local function onEnterCabBossZone()
 end
 
 local function onExitCabBossZone()
+    lib.hideTextUI()
     isPlayerInsideBossZone = false
 end
 
@@ -371,7 +373,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
         setupTarget()
     end
     if PlayerJob.name == "taxi" then
-            
+
         setupCabParkingLocation()
         if PlayerJob.isboss then
             setupCabBossLocation()
@@ -422,7 +424,9 @@ local function onEnterDropZone()
 end
 
 local function onExitDropZone()
+    lib.hideTextUI()
     isInsideDropZone = false
+
 end
 
 function createNpcDelieveryLocation()
