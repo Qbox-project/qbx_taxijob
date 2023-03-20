@@ -25,7 +25,7 @@ const toggleMeter = (enabled) => {
 const meterToggle = () => {
   if (!meterStarted) {
     $.post(
-      "https://qb-taxijob/enableMeter",
+      `https://${GetParentResourceName()}/enableMeter`,
       JSON.stringify({
         enabled: true,
       })
@@ -34,7 +34,7 @@ const meterToggle = () => {
     meterStarted = true;
   } else {
     $.post(
-      "https://qb-taxijob/enableMeter",
+      `https://${GetParentResourceName()}/enableMeter`,
       JSON.stringify({
         enabled: false,
       })
