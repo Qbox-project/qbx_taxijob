@@ -1,6 +1,6 @@
 -- Variables
 
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore = exports['qbx-core']:GetCoreObject()
 local meterIsOpen = false
 local meterActive = false
 local lastLocation = nil
@@ -184,7 +184,7 @@ local function callNpcPoly()
         while not NpcData.NpcTaken do
             if isInsidePickupZone then
                 if IsControlJustPressed(0, 38) then
-                    exports['qb-core']:KeyPressed()
+                    exports['qbx-core']:KeyPressed()
                     local veh = GetVehiclePedIsIn(cache.ped, 0)
                     local maxSeats, freeSeat = GetVehicleMaxNumberOfPassengers(veh)
 
@@ -445,7 +445,7 @@ function dropNpcPoly()
         while NpcData.NpcTaken do
             if isInsideDropZone then
                 if IsControlJustPressed(0, 38) then
-                    exports['qb-core']:KeyPressed()
+                    exports['qbx-core']:KeyPressed()
                     local veh = GetVehiclePedIsIn(cache.ped, 0)
                     TaskLeaveVehicle(NpcData.Npc, veh, 0)
                     SetEntityAsMissionEntity(NpcData.Npc, false, true)
@@ -509,7 +509,7 @@ local function onEnterCabZone()
         while isPlayerInsideCabZone do
             if IsControlJustReleased(0, 38) then
                 local cab = cache.vehicle
-                exports['qb-core']:KeyPressed()
+                exports['qbx-core']:KeyPressed()
                 if whitelistedVehicle() then
                     if meterIsOpen then
                         TriggerEvent('qb-taxi:client:toggleMeter')
