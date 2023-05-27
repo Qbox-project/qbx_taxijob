@@ -217,6 +217,7 @@ local function callNpcPoly()
                     NpcData.NpcTaken = true
                     createNpcDelieveryLocation()
                     zone:remove()
+                    lib.hideTextUI()
                 end
             end
             Wait(0)
@@ -474,6 +475,7 @@ function dropNpcPoly()
                     RemovePed(NpcData.Npc)
                     ResetNpcTask()
                     delieveryZone:remove()
+                    lib.hideTextUI()
                     break
                 end
             end
