@@ -21,6 +21,7 @@ local Translations = {
         ["no_spawn_point"] = "No es posible encontrar una ubicación para traer el taxi",
         ["taxi_returned"] = "Taxi estacionado",
         ["request_taxi"] = "🚕 Solicitar taxi",
+        ["take_vehicle"] = "Sacar nuestro %{model}"
     },
     menu = {
         ["taxi_menu_header"] = "Vehículos para taxi",
@@ -28,7 +29,11 @@ local Translations = {
         ['boss_menu'] = "Menú de jefe"
     }
 }
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true,
-})
+
+if GetConvar('qb_locale', 'en') == 'es' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

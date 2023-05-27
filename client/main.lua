@@ -396,7 +396,7 @@ local function TaxiGarage()
 
         options[#options+1] = {
             title = v.label,
-            description = "Take our a " .. v.label,
+            description = Lang:t('info.take_vehicle', { model = v.label }),
             event = 'qb-taxi:client:TakeVehicle',
             args = {model = v.model}
         }

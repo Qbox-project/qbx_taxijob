@@ -20,7 +20,8 @@ local Translations = {
         ["taxi_label_1"] = "Standard Cab",
         ["no_spawn_point"] = "Unable to find a location to bring the cab",
         ["taxi_returned"] = "Cab Parked",
-        ["request_taxi"] = "🚕 Request Taxi Cab"
+        ["request_taxi"] = "🚕 Request Taxi Cab",
+        ["take_vehicle"] = "Take our "
     },
     menu = {
         ["taxi_menu_header"] = "Taxi Vehicles",
@@ -28,6 +29,7 @@ local Translations = {
         ['boss_menu'] = "Boss Menu"
     }
 }
+
 Lang = Locale:new({
     phrases = Translations,
     warnOnMissing = true,
