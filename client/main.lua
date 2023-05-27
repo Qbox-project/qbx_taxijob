@@ -50,7 +50,7 @@ local function setupTarget()
                 type = "client",
                 event = "qb-taxijob:client:requestcab",
                 icon = "fas fa-sign-in-alt",
-                label = '🚕 Request Taxi Cab',
+                label = Lang:t('info.request_taxi'),
                 job = "taxi",
             }
         })
@@ -318,7 +318,7 @@ local function onEnterCabBossZone()
         while isPlayerInsideBossZone do
             local pos = GetEntityCoords(cache.ped)
             if #(pos - Config.BossMenu) < 2.0 then
-                DrawText3D(Config.BossMenu.x, Config.BossMenu.y,Config.BossMenu.z, "~g~E~w~ - Boss Menu")
+                DrawText3D(Config.BossMenu.x, Config.BossMenu.y,Config.BossMenu.z, Lang:t('menu.boss_menu'))
                 if IsControlJustReleased(0, 38) then
                     TriggerEvent('qb-bossmenu:client:OpenMenu')
                 end
@@ -448,6 +448,8 @@ function dropNpcPoly()
                     exports['qbx-core']:KeyPressed()
                     local veh = GetVehiclePedIsIn(cache.ped, 0)
                     TaskLeaveVehicle(NpcData.Npc, veh, 0)
+                    Wait(1000)
+                    SetVehicleDoorShut(veh, 3, false)
                     SetEntityAsMissionEntity(NpcData.Npc, false, true)
                     SetEntityAsNoLongerNeeded(NpcData.Npc)
                     local targetCoords = Config.NPCLocations.TakeLocations[NpcData.LastNpc]
