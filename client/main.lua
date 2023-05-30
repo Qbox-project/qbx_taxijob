@@ -593,7 +593,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
             local PedSkin = math.random(1, #Config.NpcSkins[Gender])
             local model = GetHashKey(Config.NpcSkins[Gender][PedSkin])
             lib.requestModel(model)
-            NpcData.Npc = CreatePed(3, model, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z - 0.98, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].w, false, true)
+            NpcData.Npc = CreatePed(3, model, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z - 0.98, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].w, true, true)
             PlaceObjectOnGroundProperly(NpcData.Npc)
             FreezeEntityPosition(NpcData.Npc, true)
             if NpcData.NpcBlip ~= nil then
