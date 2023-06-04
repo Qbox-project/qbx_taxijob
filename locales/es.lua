@@ -11,15 +11,17 @@ local Translations = {
     info = {
         ["person_was_dropped_off"] = "La persona se bajó del taxi",
         ["npc_on_gps"] = "El NPC está indicado en tu GPS",
-        ["go_to_location"] = "Trae el NPC a la ubicación específicada",
-        ["vehicle_parking"] = "[E] Estacionamiento de vehículo",
-        ["job_vehicles"] = "[E] Vehículos de trabajo",
-        ["drop_off_npc"] = "[E] Bajar NPC",
-        ["call_npc"] = "[E] Llamar NPC",
-        ["blip_name"] = "Taxi downtown",
+        ["go_to_location"] = "Lleva el NPC a la ubicación específicada",
+        ["vehicle_parking"] = "[E] - Estacionar vehículo",
+        ["job_vehicles"] = "[E] - Vehículos de trabajo",
+        ["drop_off_npc"] = "[E] - Bajar NPC",
+        ["call_npc"] = "[E] - Llamar NPC",
+        ["blip_name"] = "Central de taxis",
         ["taxi_label_1"] = "Taxi estándar",
         ["no_spawn_point"] = "No es posible encontrar una ubicación para traer el taxi",
-        ["taxi_returned"] = "Taxi estacionado"
+        ["taxi_returned"] = "Taxi estacionado",
+        ["request_taxi"] = "🚕 Solicitar taxi",
+        ["take_vehicle"] = "Sacar nuestro %{model}"
     },
     menu = {
         ["taxi_menu_header"] = "Vehículos para taxi",
@@ -27,7 +29,11 @@ local Translations = {
         ['boss_menu'] = "Menú de jefe"
     }
 }
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true,
-})
+
+if GetConvar('qb_locale', 'en') == 'es' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end

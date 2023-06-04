@@ -50,7 +50,7 @@ local function setupTarget()
                 type = "client",
                 event = "qb-taxijob:client:requestcab",
                 icon = "fas fa-sign-in-alt",
-                label = '🚕 Request Taxi Cab',
+                label = Lang:t('info.request_taxi'),
                 job = "taxi",
             }
         })
@@ -217,6 +217,7 @@ local function callNpcPoly()
                     NpcData.NpcTaken = true
                     createNpcDelieveryLocation()
                     zone:remove()
+                    lib.hideTextUI()
                 end
             end
             Wait(0)
@@ -318,7 +319,7 @@ local function onEnterCabBossZone()
         while isPlayerInsideBossZone do
             local pos = GetEntityCoords(cache.ped)
             if #(pos - Config.BossMenu) < 2.0 then
-                DrawText3D(Config.BossMenu.x, Config.BossMenu.y,Config.BossMenu.z, "~g~E~w~ - Boss Menu")
+                DrawText3D(Config.BossMenu.x, Config.BossMenu.y,Config.BossMenu.z, Lang:t('menu.boss_menu'))
                 if IsControlJustReleased(0, 38) then
                     TriggerEvent('qb-bossmenu:client:OpenMenu')
                 end
@@ -396,7 +397,7 @@ local function TaxiGarage()
 
         options[#options+1] = {
             title = v.label,
-            description = "Take our a " .. v.label,
+            description = Lang:t('info.take_vehicle', { model = v.label }),
             event = 'qb-taxi:client:TakeVehicle',
             args = {model = v.model}
         }
@@ -448,6 +449,8 @@ function dropNpcPoly()
                     exports['qbx-core']:KeyPressed()
                     local veh = GetVehiclePedIsIn(cache.ped, 0)
                     TaskLeaveVehicle(NpcData.Npc, veh, 0)
+                    Wait(1000)
+                    SetVehicleDoorShut(veh, 3, false)
                     SetEntityAsMissionEntity(NpcData.Npc, false, true)
                     SetEntityAsNoLongerNeeded(NpcData.Npc)
                     local targetCoords = Config.NPCLocations.TakeLocations[NpcData.LastNpc]
@@ -472,6 +475,7 @@ function dropNpcPoly()
                     RemovePed(NpcData.Npc)
                     ResetNpcTask()
                     delieveryZone:remove()
+                    lib.hideTextUI()
                     break
                 end
             end
@@ -589,7 +593,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
             local PedSkin = math.random(1, #Config.NpcSkins[Gender])
             local model = GetHashKey(Config.NpcSkins[Gender][PedSkin])
             lib.requestModel(model)
-            NpcData.Npc = CreatePed(3, model, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z - 0.98, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].w, false, true)
+            NpcData.Npc = CreatePed(3, model, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z - 0.98, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].w, true, true)
             PlaceObjectOnGroundProperly(NpcData.Npc)
             FreezeEntityPosition(NpcData.Npc, true)
             if NpcData.NpcBlip ~= nil then
