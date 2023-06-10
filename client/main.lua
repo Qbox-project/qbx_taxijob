@@ -41,7 +41,7 @@ local function setupTarget()
         lib.requestModel(`a_m_m_indian_01`)
         taxiPed = CreatePed(3, `a_m_m_indian_01`, 901.34, -170.06, 74.08 - 1.0, 228.81, false, true)
         SetBlockingOfNonTemporaryEvents(taxiPed, true)
-        TaskPlayAnim(taxiPed, 'abigail_mcs_1_concat-0', 'csb_abigail_dual-0', 8.0, 0, -1, 1, false, false, false)
+        TaskPlayAnim(taxiPed, 'abigail_mcs_1_concat-0', 'csb_abigail_dual-0', 8.0, 8.0, -1, 1, 0, false, false, false)
         TaskStartScenarioInPlace(taxiPed, "WORLD_HUMAN_AA_COFFEE", 0, false)
         FreezeEntityPosition(taxiPed, true)
         SetEntityInvincible(taxiPed, true)
@@ -85,12 +85,12 @@ local function whitelistedVehicle()
     local retval = false
 
     for i = 1, #Config.AllowedVehicles, 1 do
-        if veh == GetHashKey(Config.AllowedVehicles[i].model) then
+        if veh == joaat(Config.AllowedVehicles[i].model) then
             retval = true
         end
     end
 
-    if veh == GetHashKey("dynasty") then
+    if veh == `dynasty` then
         retval = true
     end
 
@@ -98,21 +98,21 @@ local function whitelistedVehicle()
 end
 
 local function IsDriver()
-    return GetPedInVehicleSeat(GetVehiclePedIsIn(cache.ped, false), -1) == cache.ped
+    return cache.seat == -1
 end
 
 local function DrawText3D(x, y, z, text)
 	SetTextScale(0.35, 0.35)
     SetTextFont(4)
-    SetTextProportional(1)
+    SetTextProportional(true)
     SetTextColour(255, 255, 255, 215)
-    SetTextEntry("STRING")
+    BeginTextCommandDisplayText("STRING")
     SetTextCentre(true)
-    AddTextComponentString(text)
+    AddTextComponentSubstringPlayerName(text)
     SetDrawOrigin(x,y,z, 0)
-    DrawText(0.0, 0.0)
-    local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
+    EndTextCommandDisplayText(0.0, 0.0)
+    local factor = string.len(text) / 370
+    DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75)
     ClearDrawOrigin()
 end
 
@@ -121,13 +121,13 @@ local delieveryZone
 
 local function GetDeliveryLocation()
     NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
-    if NpcData.LastDeliver ~= nil then
+    if NpcData.LastDeliver then
         while NpcData.LastDeliver ~= NpcData.CurrentDeliver do
             NpcData.CurrentDeliver = math.random(1, #Config.NPCLocations.DeliverLocations)
         end
     end
 
-    if NpcData.DeliveryBlip ~= nil then
+    if NpcData.DeliveryBlip then
         RemoveBlip(NpcData.DeliveryBlip)
     end
     NpcData.DeliveryBlip = AddBlipForCoord(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z)
@@ -141,7 +141,7 @@ local function GetDeliveryLocation()
                 local pos = GetEntityCoords(cache.ped)
                 local dist = #(pos - vector3(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z))
                 if dist < 20 then
-                    DrawMarker(2, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, 0, 0, 0, 1, 0, 0, 0)
+                    DrawMarker(2, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, false, false, 0, true, nil, nil, false)
                     if dist < 5 then
                         DrawText3D(Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].x, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].y, Config.NPCLocations.DeliverLocations[NpcData.CurrentDeliver].z, Lang:t("info.drop_off_npc"))
                         if IsControlJustPressed(0, 38) then
@@ -159,7 +159,7 @@ local function GetDeliveryLocation()
                                 action = "resetMeter"
                             })
                             QBCore.Functions.Notify(Lang:t("info.person_was_dropped_off"), 'success')
-                            if NpcData.DeliveryBlip ~= nil then
+                            if NpcData.DeliveryBlip then
                                 RemoveBlip(NpcData.DeliveryBlip)
                             end
                             local RemovePed = function(p)
@@ -185,10 +185,10 @@ local function callNpcPoly()
             if isInsidePickupZone then
                 if IsControlJustPressed(0, 38) then
                     exports['qbx-core']:KeyPressed()
-                    local veh = GetVehiclePedIsIn(cache.ped, 0)
-                    local maxSeats, freeSeat = GetVehicleMaxNumberOfPassengers(veh)
+                    local veh = cache.vehicle
+                    local maxSeats, freeSeat = GetVehicleMaxNumberOfPassengers(veh), 0
 
-                    for i=maxSeats - 1, 0, -1 do
+                    for i= maxSeats - 1, 0, -1 do
                         if IsVehicleSeatFree(veh, i) then
                             freeSeat = i
                             break
@@ -210,7 +210,7 @@ local function callNpcPoly()
                     FreezeEntityPosition(NpcData.Npc, false)
                     TaskEnterVehicle(NpcData.Npc, veh, -1, freeSeat, 1.0, 0)
                     QBCore.Functions.Notify(Lang:t("info.go_to_location"))
-                    if NpcData.NpcBlip ~= nil then
+                    if NpcData.NpcBlip then
                         RemoveBlip(NpcData.NpcBlip)
                     end
                     GetDeliveryLocation()
@@ -447,7 +447,7 @@ function dropNpcPoly()
             if isInsideDropZone then
                 if IsControlJustPressed(0, 38) then
                     exports['qbx-core']:KeyPressed()
-                    local veh = GetVehiclePedIsIn(cache.ped, 0)
+                    local veh = cache.vehicle
                     TaskLeaveVehicle(NpcData.Npc, veh, 0)
                     Wait(1000)
                     SetVehicleDoorShut(veh, 3, false)
@@ -487,7 +487,7 @@ end
 local function nonTargetEnter()
     CreateThread(function()
         while isPlayerInsideCabZone do
-            DrawMarker(2, Config.Location.x, Config.Location.y, Config.Location.z, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.3, 0.5, 0.2, 200, 0, 0, 222, false, false, false, true, false, false, false)
+            DrawMarker(2, Config.Location.x, Config.Location.y, Config.Location.z, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.3, 0.5, 0.2, 200, 0, 0, 222, false, false, 0, true, nil, nil, false)
             if whitelistedVehicle() then
                 DrawText3D(Config.Location.x, Config.Location.y, Config.Location.z + 0.3, Lang:t("info.vehicle_parking"))
                 if IsControlJustReleased(0, 38) then
@@ -557,18 +557,13 @@ end
 RegisterNetEvent("qb-taxi:client:TakeVehicle", function(data)
     local SpawnPoint = getVehicleSpawnPoint()
     if SpawnPoint then
-        local coords = vector3(Config.CabSpawns[SpawnPoint].x,Config.CabSpawns[SpawnPoint].y,Config.CabSpawns[SpawnPoint].z)
+        local coords = Config.CabSpawns[SpawnPoint]
         local CanSpawn = IsSpawnPointClear(coords, 2.0)
         if CanSpawn then
-            QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
-                local veh = NetToVeh(netId)
-                SetVehicleNumberPlateText(veh, "TAXI"..tostring(math.random(1000, 9999)))
-                exports['LegacyFuel']:SetFuel(veh, 100.0)
-                SetEntityHeading(veh, Config.CabSpawns[SpawnPoint].w)
-                TaskWarpPedIntoVehicle(cache.ped, veh, -1)
-                TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-                SetVehicleEngineOn(veh, true, true)
-            end, data.model, coords, true)
+            local netId = lib.callback.await('qb-taxi:server:spawnTaxi', false, data.model, coords)
+            local veh = NetToVeh(netId)
+            SetVehicleFuelLevel(veh, 100.0)
+            SetVehicleEngineOn(veh, true, true, false)
         else
             QBCore.Functions.Notify(Lang:t("info.no_spawn_point"), "error")
         end
@@ -622,12 +617,12 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                         local dist = #(pos - vector3(Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z))
 
                         if dist < 20 then
-                            DrawMarker(2, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, 0, 0, 0, 1, 0, 0, 0)
+                            DrawMarker(2, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, false, false, 0, true, nil, nil, false)
 
                             if dist < 5 then
                                 DrawText3D(Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].x, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].y, Config.NPCLocations.TakeLocations[NpcData.CurrentNpc].z, Lang:t("info.call_npc"))
                                 if IsControlJustPressed(0, 38) then
-                                    local maxSeats, freeSeat = GetVehicleMaxNumberOfPassengers(cache.vehicle)
+                                    local maxSeats, freeSeat = GetVehicleMaxNumberOfPassengers(cache.vehicle), 0
 
                                     for i=maxSeats - 1, 0, -1 do
                                         if IsVehicleSeatFree(cache.vehicle, i) then
@@ -736,7 +731,7 @@ end)
 
 -- Threads
 CreateThread(function()
-    local TaxiBlip = AddBlipForCoord(Config.Location)
+    local TaxiBlip = AddBlipForCoord(Config.Location.x, Config.Location.y, Config.Location.z)
     SetBlipSprite (TaxiBlip, 198)
     SetBlipDisplay(TaxiBlip, 4)
     SetBlipScale  (TaxiBlip, 0.6)
@@ -772,6 +767,3 @@ end)
 RegisterNetEvent('qb-taxijob:client:requestcab', function()
     TaxiGarage()
 end)
-
--- POLY & TARGET Conversion code
-
