@@ -1,15 +1,27 @@
 local QBCore = exports['qbx-core']:GetCoreObject()
 
-function NearTaxi(src)
+local function NearTaxi(src)
     local ped = GetPlayerPed(src)
     local coords = GetEntityCoords(ped)
     for _, v in pairs(Config.NPCLocations.DeliverLocations) do
-        local dist = #(coords - vector3(v.x,v.y,v.z))
+        local dist = #(coords - v.xyz)
         if dist < 20 then
             return true
         end
     end
 end
+
+lib.callback.register('qb-taxi:server:spawnTaxi', function(source, model, coords)
+    local netId = QBCore.Functions.CreateVehicle(source, model, coords, true)
+    if not netId or netId == 0 then return end
+    local veh = NetworkGetEntityFromNetworkId(netId)
+    if not veh or veh == 0 then return end
+
+    local plate = "TAXI" .. math.random(1000, 9999)
+    SetVehicleNumberPlateText(veh, plate)
+    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
+    return netId
+end)
 
 RegisterNetEvent('qb-taxi:server:NpcPay', function(Payment)
     local src = source
