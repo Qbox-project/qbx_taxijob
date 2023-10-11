@@ -1,4 +1,4 @@
-local QBCore = exports['qbx-core']:GetCoreObject()
+local ITEMS = exports.ox_inventory:Items()
 
 local function NearTaxi(src)
     local ped = GetPlayerPed(src)
@@ -12,7 +12,7 @@ local function NearTaxi(src)
 end
 
 lib.callback.register('qb-taxi:server:spawnTaxi', function(source, model, coords)
-    local netId = QBCore.Functions.CreateVehicle(source, model, coords, true)
+    local netId = SpawnVehicle(source, model, coords, true)
     if not netId or netId == 0 then return end
     local veh = NetworkGetEntityFromNetworkId(netId)
     if not veh or veh == 0 then return end
@@ -25,7 +25,7 @@ end)
 
 RegisterNetEvent('qb-taxi:server:NpcPay', function(Payment)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local Player = exports.qbx_core:GetPlayer(src)
     if Player.PlayerData.job.name == "taxi" then
         if NearTaxi(src) then
             local randomAmount = math.random(1, 5)
@@ -35,7 +35,7 @@ RegisterNetEvent('qb-taxi:server:NpcPay', function(Payment)
             local chance = math.random(1, 100)
             if chance < 26 then
                 Player.Functions.AddItem("cryptostick", 1, false)
-                TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["cryptostick"], "add")
+                TriggerClientEvent('inventory:client:ItemBox', src, ITEMS["cryptostick"], "add")
             end
         else
             DropPlayer(src, 'Attempting To Exploit')
