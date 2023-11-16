@@ -1,7 +1,7 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QBX_TaxiJob'
+description 'QBX-TaxiJob'
 repository 'https://github.com/Qbox-project/qbx_taxijob'
 version '1.0.0'
 
