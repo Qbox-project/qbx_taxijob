@@ -1,29 +1,27 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QBX-TaxiJob'
+description 'QBX_TaxiJob'
 repository 'https://github.com/Qbox-project/qbx_taxijob'
 version '1.0.0'
 
-ui_page 'html/meter.html'
-
 shared_scripts {
-	'@qbx_core/import.lua',
-	'@qbx_core/shared/locale.lua',
 	'@ox_lib/init.lua',
+	'@qbx_core/modules/utils.lua',
+	'@qbx_core/shared/locale.lua',
 	'locales/en.lua',
 	'locales/*.lua',
 	'config.lua',
 }
 
-client_script 'client/main.lua'
+client_script {
+	'@qbx_core/modules/playerdata.lua',
+	'client/main.lua',
+}
 
 server_script 'server/main.lua'
 
-modules {
-	'qbx_core:playerdata',
-	'qbx_core:utils'
-}
+ui_page 'html/meter.html'
 
 files {
 	'html/meter.css',
