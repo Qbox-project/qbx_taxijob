@@ -1,9 +1,10 @@
+local sharedConfig = require 'config.shared'
 local ITEMS = exports.ox_inventory:Items()
 
 local function nearTaxi(src)
     local ped = GetPlayerPed(src)
     local coords = GetEntityCoords(ped)
-    for _, v in pairs(Config.NPCLocations.DeliverLocations) do
+    for _, v in pairs(sharedConfig.npcLocations.deliverLocations) do
         local dist = #(coords - v.xyz)
         if dist < 20 then
             return true

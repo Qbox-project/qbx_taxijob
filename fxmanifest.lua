@@ -10,8 +10,7 @@ shared_scripts {
 	'@qbx_core/modules/utils.lua',
 	'@qbx_core/shared/locale.lua',
 	'locales/en.lua',
-	'locales/*.lua',
-	'config.lua',
+	'locales/*.lua'
 }
 
 client_script {
@@ -28,7 +27,9 @@ files {
 	'html/meter.html',
 	'html/meter.js',
 	'html/reset.css',
-	'html/g5-meter.png'
+	'html/g5-meter.png',
+	'config/client.lua',
+	'config/shared.lua'
 }
 
 provide 'qb-taxijob'
