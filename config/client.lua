@@ -1,15 +1,22 @@
 return {
-    useTarget = GetConvar('UseTarget', 'false') == 'true',
+    useTarget = false,
     debugPoly = false,
+    useBlips = true,
     allowedVehicles = {
-        { model = 'taxi', label = Lang:t('info.taxi_label_1') },
+        { model = 'taxi', label = Lang:t('info.taxi_label_1') }
     },
     meter = {
         defaultPrice = 125.0, -- price per mile
         startingPrice = 0     -- static starting price
     },
-    bossMenu = vec3(903.32, -170.55, 74.0),
-    location = vec4(909.5, -177.35, 74.22, 238.5),
+    locations = {
+        main = {
+            coords = vec4(909.5, -177.35, 74.22, 238.5),
+        },
+        garage = {
+            coords = vec3(895.3, -179.35, 75.0),
+        }
+    },
     pzLocations = {
         takeLocations = {
             { coord = vec3(258.98, -377.9, 44.7),      height = 17.6, width = 4.2, heading = 69,  minZ = 43.75,  maxZ = 45.55 },

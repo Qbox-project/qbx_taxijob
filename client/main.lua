@@ -1,16 +1,16 @@
 -- Variables
 local config = require 'config.client'
 local sharedConfig = require 'config.shared'
+local isLoggedIn = LocalPlayer.state.isLoggedIn
 local meterIsOpen = false
 local meterActive = false
 local lastLocation = nil
 local mouseActive = false
+local garageZone, taxiParkingZone = nil, nil
 
 -- used for polyzones
 local isInsidePickupZone = false
 local isInsideDropZone = false
-local isPlayerInsideCabZone = false
-local isPlayerInsideBossZone = false
 
 local meterData = {
     fareAmount = 6,
@@ -33,27 +33,6 @@ local NpcData = {
 }
 
 local taxiPed = nil
-
-local function setupTarget()
-    CreateThread(function()
-        lib.requestModel(`a_m_m_indian_01`)
-        taxiPed = CreatePed(3, `a_m_m_indian_01`, 901.34, -170.06, 74.08 - 1.0, 228.81, false, true)
-        SetBlockingOfNonTemporaryEvents(taxiPed, true)
-        TaskPlayAnim(taxiPed, 'abigail_mcs_1_concat-0', 'csb_abigail_dual-0', 8.0, 8.0, -1, 1, 0, false, false, false)
-        TaskStartScenarioInPlace(taxiPed, 'WORLD_HUMAN_AA_COFFEE', 0, false)
-        FreezeEntityPosition(taxiPed, true)
-        SetEntityInvincible(taxiPed, true)
-        exports.ox_target:addLocalEntity(taxiPed, {
-            {
-                type = 'client',
-                event = 'qb-taxijob:client:requestcab',
-                icon = 'fas fa-sign-in-alt',
-                label = Lang:t('info.request_taxi'),
-                job = 'taxi',
-            }
-        })
-    end)
-end
 
 local function resetNpcTask()
     NpcData = {
@@ -295,104 +274,6 @@ local function calculateFareAmount()
     end
 end
 
-local function onEnterCabBossZone()
-    if QBX.PlayerData.job.name ~= 'taxi' and QBX.PlayerData.job.isboss and config.useTarget then return end
-    isPlayerInsideBossZone = true
-    CreateThread(function()
-        while isPlayerInsideBossZone do
-            local pos = GetEntityCoords(cache.ped)
-            if #(pos - config.bossMenu) < 2.0 then
-                DrawText3D(config.bossMenu.x, config.bossMenu.y, config.bossMenu.z, Lang:t('menu.boss_menu'))
-                if IsControlJustReleased(0, 38) then
-                    TriggerEvent('qb-bossmenu:client:OpenMenu')
-                end
-            end
-            Wait(0)
-        end
-    end)
-end
-
-local function onExitCabBossZone()
-    lib.hideTextUI()
-    isPlayerInsideBossZone = false
-end
-
-local function setupCabBossLocation()
-    lib.zones.box({
-        coords = vec3(config.bossMenu.x, config.bossMenu.y, config.bossMenu.z),
-        size = vec3(2.5, 2.5, 2.5),
-        rotation = 45,
-        debug = config.debugPoly,
-        onEnter = onEnterCabBossZone,
-        onExit = onExitCabBossZone
-    })
-end
-
-AddEventHandler('onResourceStop', function(resourceName)
-    if resourceName ~= GetCurrentResourceName() or table.type(QBX.PlayerData) == 'empty' or not config.useTarget then return end
-    if config.useTarget then
-        DeletePed(taxiPed)
-    end
-end)
-
-AddEventHandler('onResourceStart', function(resourceName)
-    if resourceName ~= GetCurrentResourceName() or table.type(QBX.PlayerData) == 'empty' or not config.useTarget then return end
-    if LocalPlayer.state.isLoggedIn then
-        if QBX.PlayerData.job.name == 'taxi' then
-            setupCabParkingLocation()
-            if QBX.PlayerData.job.isboss then
-                setupCabBossLocation()
-            end
-        end
-    end
-    if config.useTarget then
-        setupTarget()
-    end
-end)
-
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    if config.useTarget then
-        setupTarget()
-    end
-    if QBX.PlayerData.job.name == 'taxi' then
-
-        setupCabParkingLocation()
-        if QBX.PlayerData.job.isboss then
-            setupCabBossLocation()
-        end
-    end
-end)
-
-local function taxiGarage()
-    local registeredMenu = {
-        id = 'garages_depotlist',
-        title = Lang:t('menu.taxi_menu_header'),
-        options = {}
-    }
-    local options = {}
-    for _, v in pairs(config.allowedVehicles) do
-
-        options[#options + 1] = {
-            title = v.label,
-            description = Lang:t('info.take_vehicle', { model = v.label }),
-            event = 'qb-taxi:client:TakeVehicle',
-            args = {model = v.model}
-        }
-    end
-    if QBX.PlayerData.job.name == 'taxi' and QBX.PlayerData.job.isboss and config.useTarget then
-
-        options[#options + 1] = {
-            title = Lang:t('menu.boss_menu'),
-            description = 'Boss Menu',
-            event = 'qb-bossmenu:client:forceMenu'
-        }
-    end
-
-    registeredMenu['options'] = options
-    lib.registerContext(registeredMenu)
-    lib.showContext('garages_depotlist')
-end
-
 local function onEnterDropZone()
     if whitelistedVehicle() and not isInsideDropZone and NpcData.NpcTaken then
         isInsideDropZone = true
@@ -461,74 +342,128 @@ function dropNpcPoly()
     end)
 end
 
-local function nonTargetEnter()
-    CreateThread(function()
-        while isPlayerInsideCabZone do
-            DrawMarker(2, config.location.x, config.location.y, config.location.z, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.3, 0.5, 0.2, 200, 0, 0, 222, false, false, 0, true, nil, nil, false)
-            if whitelistedVehicle() then
-                DrawText3D(config.location.x, config.location.y, config.location.z + 0.3, Lang:t('info.vehicle_parking'))
-                if IsControlJustReleased(0, 38) then
-                    if cache.vehicle then
-                        DeleteVehicle(cache.vehicle)
-                    end
-                end
-            else
-                DrawText3D(config.location.x, config.location.y, config.location.z + 0.3, Lang:t('info.job_vehicles'))
-                if IsControlJustReleased(0, 38) then
-                    taxiGarage()
-                end
-            end
-            Wait(0)
-        end
-    end)
+local function setLocationsBlip()
+    if not config.useBlips then return end
+    local taxiBlip = AddBlipForCoord(config.locations.main.coords.x, config.locations.main.coords.y, config.locations.main.coords.z)
+    SetBlipSprite(taxiBlip, 198)
+    SetBlipDisplay(taxiBlip, 4)
+    SetBlipScale(taxiBlip, 0.6)
+    SetBlipAsShortRange(taxiBlip, true)
+    SetBlipColour(taxiBlip, 5)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentSubstringPlayerName(Lang:t('info.blip_name'))
+    EndTextCommandSetBlipName(taxiBlip)
 end
 
-local function onEnterCabZone()
-    if QBX.PlayerData.job.name ~= 'taxi' then return end
-    isPlayerInsideCabZone = true
-    CreateThread(function()
-        while isPlayerInsideCabZone do
-            if IsControlJustReleased(0, 38) then
-                local cab = cache.vehicle
+local function taxiGarage()
+    local registeredMenu = {
+        id = 'garages_depotlist',
+        title = Lang:t('menu.taxi_menu_header'),
+        options = {}
+    }
+    local options = {}
+    for _, v in pairs(config.allowedVehicles) do
+
+        options[#options + 1] = {
+            title = v.label,
+            event = 'qb-taxi:client:TakeVehicle',
+            args = {model = v.model},
+            icon = 'fa-solid fa-taxi'
+        }
+    end
+
+    registeredMenu['options'] = options
+    lib.registerContext(registeredMenu)
+    lib.showContext('garages_depotlist')
+end
+
+local function setupGarageZone()
+    if config.useTarget then
+        lib.requestModel(`a_m_m_indian_01`)
+        taxiPed = CreatePed(3, `a_m_m_indian_01`, 894.93, -179.12, 74.7 - 1.0, 237.09, false, true)
+        SetBlockingOfNonTemporaryEvents(taxiPed, true)
+        FreezeEntityPosition(taxiPed, true)
+        SetEntityInvincible(taxiPed, true)
+        exports.ox_target:addLocalEntity(taxiPed, {
+            {
+                type = 'client',
+                event = 'qb-taxijob:client:requestcab',
+                icon = 'fa-solid fa-taxi',
+                label = Lang:t('info.request_taxi_target'),
+                job = 'taxi',
+            }
+        })
+    else
+        local function onEnter()
+            if not cache.vehicle then
+                lib.showTextUI(Lang:t('info.request_taxi'))
+            end
+        end
+
+        local function onExit()
+            lib.hideTextUI()
+        end
+
+        local function inside()
+            if IsControlJustPressed(0, 38) then
                 lib.hideTextUI()
+                taxiGarage()
+                return
+            end
+        end
+
+        garageZone = lib.zones.box({
+            coords = config.locations.garage.coords,
+            size = vec3(1.6, 4.0, 2.8),
+            rotation = 328.5,
+            debug = config.debugPoly,
+            inside = inside,
+            onEnter = onEnter,
+            onExit = onExit
+        })
+    end
+end
+
+local function destroyGarageZone()
+    if not garageZone then return end
+
+    garageZone:remove()
+    garageZone = nil
+end
+
+function setupTaxiParkingZone()
+        taxiParkingZone = lib.zones.box({
+        coords = vec3(config.locations.main.coords.x, config.locations.main.coords.y, config.locations.main.coords.z),
+        size = vec3(4.0, 4.0, 4.0),
+        rotation = 55,
+        debug = config.debugPoly,
+        inside = function()
+            if QBX.PlayerData.job.name ~= 'taxi' then return end
+            if IsControlJustPressed(0, 38) then
                 if whitelistedVehicle() then
                     if meterIsOpen then
                         TriggerEvent('qb-taxi:client:toggleMeter')
                         meterActive = false
                     end
-                    TaskLeaveVehicle(cache.ped, cache.vehicle, 0)
-                    Wait(2000) -- 2 second delay just to ensure the player is out of the vehicle
-                    DeleteVehicle(cab)
+                    DeleteVehicle(cache.vehicle)
                     exports.qbx_core:Notify(Lang:t('info.taxi_returned'), 'success')
                 end
             end
-            Wait(0)
+        end,
+        onEnter = function()
+            lib.showTextUI(Lang:t('info.vehicle_parking'))
+        end,
+        onExit = function()
+            lib.hideTextUI()
         end
-    end)
-
-    if config.useTarget then
-        if whitelistedVehicle() then
-            lib.showTextUI(Lang:t('info.vehicle_parking'), {position = 'left-center'})
-        end
-    else
-        nonTargetEnter()
-    end
-end
-
-local function onExitCabZone()
-    lib.hideTextUI()
-    isPlayerInsideCabZone = false
-end
-
-function setupCabParkingLocation()
-    lib.zones.box({
-        coords = vec3(config.location.x, config.location.y, config.location.z),
-        size = vec3(4.0, 4.0, 4.0),
-        rotation = 55,
-        debug = config.debugPoly,
-        onEnter = onEnterCabZone,
-        onExit = onExitCabZone
     })
+end
+
+local function destroyTaxiParkingZone()
+    if not taxiParkingZone then return end
+
+    taxiParkingZone:remove()
+    taxiParkingZone = nil
 end
 
 RegisterNetEvent('qb-taxi:client:TakeVehicle', function(data)
@@ -712,18 +647,6 @@ end)
 
 -- Threads
 CreateThread(function()
-    local taxiBlip = AddBlipForCoord(config.location.x, config.location.y, config.location.z)
-    SetBlipSprite (taxiBlip, 198)
-    SetBlipDisplay(taxiBlip, 4)
-    SetBlipScale  (taxiBlip, 0.6)
-    SetBlipAsShortRange(taxiBlip, true)
-    SetBlipColour(taxiBlip, 5)
-    BeginTextCommandSetBlipName('STRING')
-    AddTextComponentSubstringPlayerName(Lang:t('info.blip_name'))
-    EndTextCommandSetBlipName(taxiBlip)
-end)
-
-CreateThread(function()
     while true do
         Wait(2000)
         calculateFareAmount()
@@ -743,4 +666,32 @@ CreateThread(function()
         end
         Wait(200)
     end
+end)
+
+local function init()
+    if QBX.PlayerData.job.name == 'taxi' then
+        setupGarageZone()
+        setupTaxiParkingZone()
+        setLocationsBlip()
+    end
+end
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
+    destroyGarageZone()
+    destroyTaxiParkingZone()
+    init()
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    isLoggedIn = true
+    init()
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    isLoggedIn = false
+end)
+
+CreateThread(function()
+    if not isLoggedIn then return end
+    init()
 end)
