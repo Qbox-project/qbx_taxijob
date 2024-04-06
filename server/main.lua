@@ -13,7 +13,7 @@ local function nearTaxi(src)
 end
 
 lib.callback.register('qb-taxi:server:spawnTaxi', function(source, model, coords)
-    local _, veh = qbx.spawnVehicle({
+    local netId, veh = qbx.spawnVehicle({
         model = model,
         spawnSource = coords,
         warp = GetPlayerPed(source --[[@as number]]),
