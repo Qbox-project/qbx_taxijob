@@ -13,10 +13,11 @@ local function nearTaxi(src)
 end
 
 lib.callback.register('qb-taxi:server:spawnTaxi', function(source, model, coords)
-    local netId = SpawnVehicle(source, model, coords, true)
-    if not netId or netId == 0 then return end
-    local veh = NetworkGetEntityFromNetworkId(netId)
-    if not veh or veh == 0 then return end
+    local netId, veh = qbx.spawnVehicle({
+        model = model,
+        spawnSource = coords,
+        warp = GetPlayerPed(source --[[@as number]]),
+    })
 
     local plate = 'TAXI' .. math.random(1000, 9999)
     SetVehicleNumberPlateText(veh, plate)
