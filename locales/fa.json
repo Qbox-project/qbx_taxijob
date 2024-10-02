@@ -7,7 +7,7 @@
         "not_active_meter": "Taxi Meter Faal Nist",
         "no_meter_sight": "Taxi Meter Dar Maraze Did Nist"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Mosafer Piyade Shod!",
         "npc_on_gps": "NPC Dar GPS Shoma Neshan Dade Shode Ast",

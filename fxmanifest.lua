@@ -26,7 +26,8 @@ files {
 	'html/reset.css',
 	'html/g5-meter.png',
 	'config/client.lua',
-	'config/shared.lua'
+	'config/shared.lua',
+	'locales/*.json'
 }
 
 provide 'qb-taxijob'

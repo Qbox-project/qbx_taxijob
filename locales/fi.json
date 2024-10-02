@@ -7,7 +7,7 @@
         "not_active_meter": "Taksimittari ei ole aktiivinen",
         "no_meter_sight": "Ei taksimittaria nähtävissä"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Jätit matkustajan pois!",
         "npc_on_gps": "Matkustajan sijainti näkyy GPS:ssäsi",

@@ -3,7 +3,7 @@ return {
     debugPoly = false,
     useBlips = true,
     allowedVehicles = {
-        { model = 'taxi', label = Lang:t('info.taxi_label_1') }
+        { model = 'taxi', label = locale('info.taxi_label_1') }
     },
     meter = {
         defaultPrice = 125.0, -- price per mile

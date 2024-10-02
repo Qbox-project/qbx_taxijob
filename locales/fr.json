@@ -7,7 +7,7 @@
         "not_active_meter": "Le taximètre n'est pas activé",
         "no_meter_sight": "Pas de taximètre en vue"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "La personne a été déposée!",
         "npc_on_gps": "Le client est indiqué sur votre GPS!",

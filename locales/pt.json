@@ -7,7 +7,7 @@
         "not_active_meter": "O taxímetro não se encontra activo",
         "no_meter_sight": "Nenhum taxímetro à vista"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "O passageiro foi entregue!",
         "npc_on_gps": "O NPC encontra-se indicado no teu GPS",

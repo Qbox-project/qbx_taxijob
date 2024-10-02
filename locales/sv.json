@@ -7,7 +7,7 @@
         "not_active_meter": "Taxametern är inte aktiv",
         "no_meter_sight": "Ingen Taxameter i sikte"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Passageraren släpptes av!",
         "npc_on_gps": "NPC'n syns på din GPS",

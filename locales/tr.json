@@ -7,7 +7,7 @@
         "not_active_meter": "Taksimetre Aktif Değil",
         "no_meter_sight": "Görünürde Taksimetre Yok"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Kişi Bırakıldı!",
         "npc_on_gps": "NPC, GPS'inizde Belirtildi",

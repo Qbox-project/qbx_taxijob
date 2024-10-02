@@ -7,7 +7,7 @@
         "not_active_meter": "Taxametr není aktivní",
         "no_meter_sight": "Žádný taxametr není v dohledu"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Osoba byla vysazena!",
         "npc_on_gps": "NPC je označeno na tvém GPS",

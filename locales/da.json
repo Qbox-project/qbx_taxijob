@@ -7,7 +7,7 @@
         "not_active_meter": "Taxameteret er ikke aktivt",
         "no_meter_sight": "Intet taxameter at se"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Personen blev sat af!",
         "npc_on_gps": "En NPC er markeret på din GPS",

@@ -7,7 +7,7 @@
         "not_active_meter": "Das Taxameter ist nicht aktiv",
         "no_meter_sight": "Kein Taxameter in Sicht"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Person wurde abgesetzt!",
         "npc_on_gps": "Der NPC wird auf Ihrem GPS angezeigt",

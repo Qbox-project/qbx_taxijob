@@ -7,7 +7,7 @@
         "not_active_meter": "The Taxi Meter Is Not Active",
         "no_meter_sight": "No Taxi Meter In Sight"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "Person Was Dropped Off!",
         "npc_on_gps": "The NPC Is Indicated On Your GPS",

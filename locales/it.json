@@ -7,7 +7,7 @@
         "not_active_meter": "Il tassametro non è acceso",
         "no_meter_sight": "Nessun tassametro visibile"
     },
-    "success": [],
+    "success": {},
     "info": {
         "person_was_dropped_off": "La persona è stata lasciata! ",
         "npc_on_gps": "L'NPC è stato segnato sul GPS",
