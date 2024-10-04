@@ -13,7 +13,7 @@ shared_scripts {
 	'locales/*.lua'
 }
 
-client_script {
+client_scripts {
 	'@qbx_core/modules/playerdata.lua',
 	'client/main.lua',
 }
