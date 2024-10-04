@@ -105,7 +105,7 @@ local function getDeliveryLocation()
                 if dist < 20 then
                     DrawMarker(2, sharedConfig.npcLocations.deliverLocations[NpcData.CurrentDeliver].x, sharedConfig.npcLocations.deliverLocations[NpcData.CurrentDeliver].y, sharedConfig.npcLocations.deliverLocations[NpcData.CurrentDeliver].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, false, false, 0, true, nil, nil, false)
                     if dist < 5 then
-                        qbx.drawText3d({text = Lang:t('info.drop_off_npc'), coords = sharedConfig.npcLocations.deliverLocations[NpcData.CurrentDeliver].xyz})
+                        qbx.drawText3d({text = locale('info.drop_off_npc'), coords = sharedConfig.npcLocations.deliverLocations[NpcData.CurrentDeliver].xyz})
                         if IsControlJustPressed(0, 38) then
                             TaskLeaveVehicle(NpcData.Npc, cache.vehicle, 0)
                             SetEntityAsMissionEntity(NpcData.Npc, false, true)
@@ -120,7 +120,7 @@ local function getDeliveryLocation()
                             SendNUIMessage({
                                 action = 'resetMeter'
                             })
-                            exports.qbx_core:Notify(Lang:t('info.person_was_dropped_off'), 'success')
+                            exports.qbx_core:Notify(locale('info.person_was_dropped_off'), 'success')
                             if NpcData.DeliveryBlip then
                                 RemoveBlip(NpcData.DeliveryBlip)
                             end
@@ -171,7 +171,7 @@ local function callNpcPoly()
                     ClearPedTasksImmediately(NpcData.Npc)
                     FreezeEntityPosition(NpcData.Npc, false)
                     TaskEnterVehicle(NpcData.Npc, veh, -1, freeSeat, 1.0, 0)
-                    exports.qbx_core:Notify(Lang:t('info.go_to_location'), 'inform')
+                    exports.qbx_core:Notify(locale('info.go_to_location'), 'inform')
                     if NpcData.NpcBlip then
                         RemoveBlip(NpcData.NpcBlip)
                     end
@@ -190,7 +190,7 @@ end
 local function onEnterCallZone()
     if whitelistedVehicle() and not isInsidePickupZone and not NpcData.NpcTaken then
         isInsidePickupZone = true
-        lib.showTextUI(Lang:t('info.call_npc'), {position = 'left-center'})
+        lib.showTextUI(locale('info.call_npc'), {position = 'left-center'})
         callNpcPoly()
     end
 end
@@ -277,7 +277,7 @@ end
 local function onEnterDropZone()
     if whitelistedVehicle() and not isInsideDropZone and NpcData.NpcTaken then
         isInsideDropZone = true
-        lib.showTextUI(Lang:t('info.drop_off_npc'), {position = 'left-center'})
+        lib.showTextUI(locale('info.drop_off_npc'), {position = 'left-center'})
         dropNpcPoly()
     end
 end
@@ -321,7 +321,7 @@ function dropNpcPoly()
                     SendNUIMessage({
                         action = 'resetMeter'
                     })
-                    exports.qbx_core:Notify(Lang:t('info.person_was_dropped_off'), 'success')
+                    exports.qbx_core:Notify(locale('info.person_was_dropped_off'), 'success')
                     if NpcData.DeliveryBlip ~= nil then
                         RemoveBlip(NpcData.DeliveryBlip)
                     end
@@ -351,14 +351,14 @@ local function setLocationsBlip()
     SetBlipAsShortRange(taxiBlip, true)
     SetBlipColour(taxiBlip, 5)
     BeginTextCommandSetBlipName('STRING')
-    AddTextComponentSubstringPlayerName(Lang:t('info.blip_name'))
+    AddTextComponentSubstringPlayerName(locale('info.blip_name'))
     EndTextCommandSetBlipName(taxiBlip)
 end
 
 local function taxiGarage()
     local registeredMenu = {
         id = 'garages_depotlist',
-        title = Lang:t('menu.taxi_menu_header'),
+        title = locale('menu.taxi_menu_header'),
         options = {}
     }
     local options = {}
@@ -390,14 +390,14 @@ local function setupGarageZone()
                 type = 'client',
                 event = 'qb-taxijob:client:requestcab',
                 icon = 'fa-solid fa-taxi',
-                label = Lang:t('info.request_taxi_target'),
+                label = locale('info.request_taxi_target'),
                 job = 'taxi',
             }
         })
     else
         local function onEnter()
             if not cache.vehicle then
-                lib.showTextUI(Lang:t('info.request_taxi'))
+                lib.showTextUI(locale('info.request_taxi'))
             end
         end
 
@@ -447,12 +447,12 @@ function setupTaxiParkingZone()
                         meterActive = false
                     end
                     DeleteVehicle(cache.vehicle)
-                    exports.qbx_core:Notify(Lang:t('info.taxi_returned'), 'success')
+                    exports.qbx_core:Notify(locale('info.taxi_returned'), 'success')
                 end
             end
         end,
         onEnter = function()
-            lib.showTextUI(Lang:t('info.vehicle_parking'))
+            lib.showTextUI(locale('info.vehicle_parking'))
         end,
         onExit = function()
             lib.hideTextUI()
@@ -478,10 +478,10 @@ RegisterNetEvent('qb-taxi:client:TakeVehicle', function(data)
             SetVehicleFuelLevel(veh, 100.0)
             SetVehicleEngineOn(veh, true, true, false)
         else
-            exports.qbx_core:Notify(Lang:t('info.no_spawn_point'), 'error')
+            exports.qbx_core:Notify(locale('info.no_spawn_point'), 'error')
         end
     else
-        exports.qbx_core:Notify(Lang:t('info.no_spawn_point'), 'error')
+        exports.qbx_core:Notify(locale('info.no_spawn_point'), 'error')
         return
     end
 end)
@@ -508,7 +508,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
             if NpcData.NpcBlip ~= nil then
                 RemoveBlip(NpcData.NpcBlip)
             end
-            exports.qbx_core:Notify(Lang:t('info.npc_on_gps'), 'success')
+            exports.qbx_core:Notify(locale('info.npc_on_gps'), 'success')
 
             -- added checks to disable distance checking if polyzone option is used
             if config.useTarget then
@@ -534,7 +534,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                             DrawMarker(2, sharedConfig.npcLocations.takeLocations[NpcData.CurrentNpc].x, sharedConfig.npcLocations.takeLocations[NpcData.CurrentNpc].y, sharedConfig.npcLocations.takeLocations[NpcData.CurrentNpc].z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.3, 0.3, 255, 255, 255, 255, false, false, 0, true, nil, nil, false)
 
                             if dist < 5 then
-                                qbx.drawText3d({text = Lang:t('info.call_npc'), coords = sharedConfig.npcLocations.takeLocations[NpcData.CurrentNpc].xyz})
+                                qbx.drawText3d({text = locale('info.call_npc'), coords = sharedConfig.npcLocations.takeLocations[NpcData.CurrentNpc].xyz})
                                 if IsControlJustPressed(0, 38) then
                                     local maxSeats, freeSeat = GetVehicleMaxNumberOfPassengers(cache.vehicle), 0
 
@@ -559,7 +559,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                                     ClearPedTasksImmediately(NpcData.Npc)
                                     FreezeEntityPosition(NpcData.Npc, false)
                                     TaskEnterVehicle(NpcData.Npc, cache.vehicle, -1, freeSeat, 1.0, 0)
-                                    exports.qbx_core:Notify(Lang:t('info.go_to_location'), 'inform')
+                                    exports.qbx_core:Notify(locale('info.go_to_location'), 'inform')
                                     if NpcData.NpcBlip ~= nil then
                                         RemoveBlip(NpcData.NpcBlip)
                                     end
@@ -574,10 +574,10 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                 end)
             end
         else
-            exports.qbx_core:Notify(Lang:t('error.already_mission'), 'error')
+            exports.qbx_core:Notify(locale('error.already_mission'), 'error')
         end
     else
-        exports.qbx_core:Notify(Lang:t('error.not_in_taxi'), 'error')
+        exports.qbx_core:Notify(locale('error.not_in_taxi'), 'error')
     end
 end)
 
@@ -599,10 +599,10 @@ RegisterNetEvent('qb-taxi:client:toggleMeter', function()
                 meterIsOpen = false
             end
         else
-            exports.qbx_core:Notify(Lang:t('error.missing_meter'), 'error')
+            exports.qbx_core:Notify(locale('error.missing_meter'), 'error')
         end
     else
-        exports.qbx_core:Notify(Lang:t('error.no_vehicle'), 'error')
+        exports.qbx_core:Notify(locale('error.no_vehicle'), 'error')
     end
 end)
 
@@ -612,7 +612,7 @@ RegisterNetEvent('qb-taxi:client:enableMeter', function()
             action = 'toggleMeter'
         })
     else
-        exports.qbx_core:Notify(Lang:t('error.not_active_meter'), 'error')
+        exports.qbx_core:Notify(locale('error.not_active_meter'), 'error')
     end
 end)
 
@@ -624,7 +624,7 @@ RegisterNetEvent('qb-taxi:client:toggleMuis', function()
             mouseActive = true
         end
     else
-        exports.qbx_core:Notify(Lang:t('error.no_meter_sight'), 'error')
+        exports.qbx_core:Notify(locale('error.no_meter_sight'), 'error')
     end
 end)
 
