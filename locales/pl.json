@@ -1,0 +1,30 @@
+{
+    "error": {
+        "already_mission": "Wykonujesz już misję NPC",
+        "not_in_taxi": "Nie jesteś w taksówce",
+        "missing_meter": "Ten pojazd nie ma taksometru",
+        "no_vehicle": "Nie jesteś w pojeździe",
+        "not_active_meter": "Taksometr nie jest aktywny",
+        "no_meter_sight": "Brak taksometru w zasięgu wzroku"
+    },
+    "success": {},
+    "info": {
+        "person_was_dropped_off": "Osoba została wysadzona!",
+        "npc_on_gps": "NPC jest zaznaczone na Twoim GPS",
+        "go_to_location": "Zawieź NPC do wskazanej lokalizacji",
+        "vehicle_parking": "[E] - Parking pojazdów",
+        "job_vehicles": "[E] - Pojazdy służbowe",
+        "drop_off_npc": "[E] - Wysadź NPC",
+        "call_npc": "[E] - Wezwij NPC",
+        "blip_name": "Taksówki Downtown",
+        "taxi_label_1": "Standardowa taksówka",
+        "no_spawn_point": "Nie można znaleźć miejsca na przyjazd taksówki",
+        "taxi_returned": "Taksówka zaparkowana",
+        "request_taxi": "[E] - Zamów taksówkę",
+        "request_taxi_target": "Zamów taksówkę"
+    },
+    "menu": {
+        "taxi_menu_header": "Pojazdy taksówkowe",
+        "close_menu": "⬅ Zamknij menu"
+    }
+}
