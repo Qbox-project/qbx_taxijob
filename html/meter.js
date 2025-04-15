@@ -54,7 +54,6 @@ const closeMeter = () => {
 };
 
 $(document).ready(function () {
-  $(".container").hide();
   window.addEventListener("message", (event) => {
     const eventData = event.data;
     switch (eventData.action) {
