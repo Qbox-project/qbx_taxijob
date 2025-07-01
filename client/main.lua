@@ -164,8 +164,6 @@ local function callNpcPoly()
                     meterIsOpen = true
                     meterActive = true
 
-                    pickupLocation = GetEntityCoords(cache.ped)
-                    dropOffLocation = config.pzLocations.dropLocations[NpcData.CurrentDeliver].coord.xyz
                     lastLocation = GetEntityCoords(cache.ped)
                     SendNUIMessage({
                         action = 'openMeter',
