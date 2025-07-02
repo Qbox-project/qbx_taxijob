@@ -7,6 +7,7 @@ local meterActive = false
 local lastLocation = nil
 local mouseActive = false
 local garageZone, taxiParkingZone = nil, nil
+local pickupLocation, dropOffLocation = nil, nil
 
 -- used for polyzones
 local isInsidePickupZone = false
@@ -120,6 +121,9 @@ local function getDeliveryLocation()
                             SendNUIMessage({
                                 action = 'resetMeter'
                             })
+
+                            pickupLocation, pickupLocation = nil, nil
+
                             exports.qbx_core:Notify(locale('info.person_was_dropped_off'), 'success')
                             if NpcData.DeliveryBlip then
                                 RemoveBlip(NpcData.DeliveryBlip)
@@ -159,6 +163,7 @@ local function callNpcPoly()
 
                     meterIsOpen = true
                     meterActive = true
+
                     lastLocation = GetEntityCoords(cache.ped)
                     SendNUIMessage({
                         action = 'openMeter',
@@ -263,8 +268,17 @@ local function calculateFareAmount()
 
             meterData['distanceTraveled'] += (newDistance / 1609)
 
-            local fareAmount = ((meterData['distanceTraveled']) * config.meter.defaultPrice) + config.meter.startingPrice
+            local fareAmount = 0
+
+            if(config.meter.useGpsPrice) then
+                local distanceBetweenPickupAndDropoff = CalculateTravelDistanceBetweenPoints(pickupLocation.x, pickupLocation.y, pickupLocation.z, dropOffLocation.x, dropOffLocation.y, dropOffLocation.z) / 1609 -- Convert to miles
+                fareAmount =  (distanceBetweenPickupAndDropoff * config.meter.defaultPrice) + config.meter.startingPrice
+            else 
+                fareAmount = ((meterData['distanceTraveled']) * config.meter.defaultPrice) + config.meter.startingPrice
+            end
+
             meterData['currentFare'] = math.floor(fareAmount)
+
 
             SendNUIMessage({
                 action = 'updateMeter',
@@ -545,6 +559,8 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                                         end
                                     end
 
+                                    pickupLocation = GetEntityCoords(cache.ped)
+
                                     meterIsOpen = true
                                     meterActive = true
                                     lastLocation = GetEntityCoords(cache.ped)
@@ -564,6 +580,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
                                         RemoveBlip(NpcData.NpcBlip)
                                     end
                                     getDeliveryLocation()
+                                    dropOffLocation = config.pzLocations.dropLocations[NpcData.CurrentDeliver].coord.xyz
                                     NpcData.NpcTaken = true
                                 end
                             end
