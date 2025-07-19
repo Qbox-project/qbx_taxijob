@@ -1,2 +1,2 @@
-# qb-taxijob
-Taxi Job For QB-Core
+# qbx_taxijob
+Taxi Job For Qbox
