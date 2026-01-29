@@ -122,7 +122,7 @@ local function getDeliveryLocation()
                                 action = 'resetMeter'
                             })
 
-                            pickupLocation, pickupLocation = nil, nil
+                            pickupLocation, dropOffLocation = nil, nil
 
                             exports.qbx_core:Notify(locale('info.person_was_dropped_off'), 'success')
                             if NpcData.DeliveryBlip then
@@ -173,6 +173,7 @@ local function callNpcPoly()
                     SendNUIMessage({
                         action = 'toggleMeter'
                     })
+                    pickupLocation = GetEntityCoords(cache.ped)
                     ClearPedTasksImmediately(NpcData.Npc)
                     FreezeEntityPosition(NpcData.Npc, false)
                     TaskEnterVehicle(NpcData.Npc, veh, -1, freeSeat, 1.0, 0)
@@ -270,10 +271,10 @@ local function calculateFareAmount()
 
             local fareAmount = 0
 
-            if(config.meter.useGpsPrice) then
+            if (config.meter.useGpsPrice and pickupLocation and dropOffLocation) then
                 local distanceBetweenPickupAndDropoff = CalculateTravelDistanceBetweenPoints(pickupLocation.x, pickupLocation.y, pickupLocation.z, dropOffLocation.x, dropOffLocation.y, dropOffLocation.z) / 1609 -- Convert to miles
                 fareAmount =  (distanceBetweenPickupAndDropoff * config.meter.defaultPrice) + config.meter.startingPrice
-            else 
+            else
                 fareAmount = ((meterData['distanceTraveled']) * config.meter.defaultPrice) + config.meter.startingPrice
             end
 
