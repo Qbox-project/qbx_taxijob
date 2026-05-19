@@ -85,7 +85,7 @@ local delieveryZone
 local function getDeliveryLocation()
     NpcData.CurrentDeliver = math.random(1, #sharedConfig.npcLocations.deliverLocations)
     if NpcData.LastDeliver then
-        while NpcData.LastDeliver ~= NpcData.CurrentDeliver do
+        while NpcData.LastDeliver == NpcData.CurrentDeliver do
             NpcData.CurrentDeliver = math.random(1, #sharedConfig.npcLocations.deliverLocations)
         end
     end
@@ -266,11 +266,12 @@ local function calculateFareAmount()
 
             local fareAmount = 0
 
-            if (config.meter.useGpsPrice and pickupLocation and dropOffLocation) then
-                local distanceBetweenPickupAndDropoff = CalculateTravelDistanceBetweenPoints(pickupLocation.x, pickupLocation.y, pickupLocation.z, dropOffLocation.x, dropOffLocation.y, dropOffLocation.z) / 1609 -- Convert to miles
-                fareAmount =  (distanceBetweenPickupAndDropoff * config.meter.defaultPrice) + config.meter.startingPrice
+            if config.meter.useGpsPrice and pickupLocation and dropOffLocation then
+                local totalRouteDistance = CalculateTravelDistanceBetweenPoints(pickupLocation.x, pickupLocation.y, pickupLocation.z, dropOffLocation.x, dropOffLocation.y, dropOffLocation.z) / 1609
+                local progress = math.min(meterData['distanceTraveled'] / totalRouteDistance, 1.0)
+                fareAmount = (totalRouteDistance * progress * config.meter.defaultPrice) + config.meter.startingPrice
             else
-                fareAmount = ((meterData['distanceTraveled']) * config.meter.defaultPrice) + config.meter.startingPrice
+                fareAmount = (meterData['distanceTraveled'] * config.meter.defaultPrice) + config.meter.startingPrice
             end
 
             meterData['currentFare'] = math.floor(fareAmount)
@@ -506,7 +507,7 @@ RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
         if not NpcData.Active then
             NpcData.CurrentNpc = math.random(1, #sharedConfig.npcLocations.takeLocations)
             if NpcData.LastNpc ~= nil then
-                while NpcData.LastNpc ~= NpcData.CurrentNpc do
+                while NpcData.LastNpc == NpcData.CurrentNpc do
                     NpcData.CurrentNpc = math.random(1, #sharedConfig.npcLocations.takeLocations)
                 end
             end

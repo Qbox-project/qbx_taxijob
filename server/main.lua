@@ -21,7 +21,7 @@ local function nearDeliverLocation(src)
     local coords = GetEntityCoords(ped)
     for _, v in pairs(sharedConfig.npcLocations.deliverLocations) do
         local dist = #(coords - v.xyz)
-        if dist < 20 then
+        if dist < config.deliverLocationMaxDistance then
             return true
         end
     end
@@ -118,7 +118,7 @@ RegisterNetEvent('qb-taxi:server:NpcPay', function(payment)
     end
 
     local paymentAmount = tonumber(payment)
-    if paymentAmount == nil or paymentAmount < 0 or paymentAmount > config.maxFare then
+    if paymentAmount == nil or paymentAmount <= 0 or paymentAmount > config.maxFare then
         lib.print.warn(('qb_taxijob: NpcPay from source %s invalid payment %s'):format(src, tostring(payment)))
         return
     end
@@ -129,7 +129,6 @@ RegisterNetEvent('qb-taxi:server:NpcPay', function(payment)
         lib.print.warn(('qb_taxijob: NpcPay from source %s cooldown'):format(src))
         return
     end
-    lastPayTime[src] = now
 
     local randomAmount = math.random(1, 5)
     local r1, r2 = math.random(1, 5), math.random(1, 5)
@@ -139,6 +138,7 @@ RegisterNetEvent('qb-taxi:server:NpcPay', function(payment)
     paymentAmount = math.min(paymentAmount, config.maxFare + 20)
 
     player.Functions.AddMoney('cash', paymentAmount)
+    lastPayTime[src] = now
     if config.chanceItemEnabled and config.chanceItem and config.chancePercent and config.chancePercent > 0 then
         local chance = math.random(1, 100)
         if chance <= config.chancePercent then

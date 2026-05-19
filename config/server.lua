@@ -18,6 +18,7 @@ return {
         vec4(920.6716, -163.4763, 74.4108, 96.2972),
     },
     spawnPointMaxDistance = 25.0,
+    deliverLocationMaxDistance = 20.0,
     chanceItemEnabled = true,
     chanceItem = 'cryptostick',
     chancePercent = 26,
