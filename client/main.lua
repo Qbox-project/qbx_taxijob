@@ -239,24 +239,19 @@ local function getVehiclesInArea(coords, maxDistance) -- Vehicle inspection in d
 	return enumerateEntitiesWithinDistance(GetGamePool('CVehicle'), false, coords, maxDistance)
 end
 
-local function isSpawnPointClear(coords, maxDistance) -- Check the spawn point to see if it's empty or not:
+local function isSpawnPointClear(coords, maxDistance)
 	return #getVehiclesInArea(coords, maxDistance) == 0
 end
 
 local function getVehicleSpawnPoint()
-    local near = nil
-	local distance = 10000
+	local clearSpots = {}
 	for k, v in pairs(config.cabSpawns) do
-        if isSpawnPointClear(vec3(v.x, v.y, v.z), 2.5) then
-            local pos = GetEntityCoords(cache.ped)
-            local cur_distance = #(pos - vec3(v.x, v.y, v.z))
-            if cur_distance < distance then
-                distance = cur_distance
-                near = k
-            end
-        end
-    end
-	return near
+		if isSpawnPointClear(vec3(v.x, v.y, v.z), 1.0) then
+			clearSpots[#clearSpots + 1] = k
+		end
+	end
+	if #clearSpots == 0 then return nil end
+	return clearSpots[math.random(1, #clearSpots)]
 end
 
 local function calculateFareAmount()
@@ -486,9 +481,13 @@ RegisterNetEvent('qb-taxi:client:TakeVehicle', function(data)
     local SpawnPoint = getVehicleSpawnPoint()
     if SpawnPoint then
         local coords = config.cabSpawns[SpawnPoint]
-        local CanSpawn = isSpawnPointClear(coords, 2.0)
+        local CanSpawn = isSpawnPointClear(coords, 1.0)
         if CanSpawn then
             local netId = lib.callback.await('qb-taxi:server:spawnTaxi', false, data.model, coords)
+            if not netId then
+                exports.qbx_core:Notify(locale('info.no_spawn_point'), 'error')
+                return
+            end
             local veh = NetToVeh(netId)
             SetVehicleFuelLevel(veh, 100.0)
             SetVehicleEngineOn(veh, true, true, false)
@@ -651,7 +650,6 @@ RegisterNetEvent('qb-taxijob:client:requestcab', function()
 end)
 
 -- NUI Callbacks
-
 RegisterNUICallback('enableMeter', function(data, cb)
     meterActive = data.enabled
     if not meterActive then resetMeter() end

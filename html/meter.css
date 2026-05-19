@@ -18,8 +18,10 @@
 
 .g5-meter {
     position: absolute;
-    bottom: 5vh;
-    right: 5vh;
+    left: 5vh;
+    top: 50%;
+    transform: translateY(-50%) scale(0.5);
+    transform-origin: left center;
     width: var(--meter-size-width);
     height: var(--meter-size-height);
 }
