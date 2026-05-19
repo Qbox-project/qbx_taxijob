@@ -20,7 +20,7 @@
     position: absolute;
     left: 5vh;
     top: 50%;
-    transform: translateY(-50%) scale(0.5);
+    transform: translateY(-20%) scale(0.8);
     transform-origin: left center;
     width: var(--meter-size-width);
     height: var(--meter-size-height);
