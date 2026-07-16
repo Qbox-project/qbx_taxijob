@@ -3,6 +3,7 @@ return {
         'taxi',
     },
     maxFare = 2000,
+    farePerMile = 125,
     payCooldownSeconds = 5,
     cabSpawns = {
         vec4(899.0837, -180.4414, 73.4115, 238.7553),

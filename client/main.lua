@@ -98,6 +98,7 @@ local function getDeliveryLocation()
     SetBlipRoute(NpcData.DeliveryBlip, true)
     SetBlipRouteColour(NpcData.DeliveryBlip, 3)
     NpcData.LastDeliver = NpcData.CurrentDeliver
+    TriggerServerEvent('qb-taxi:server:startNpcFare', NpcData.CurrentNpc, NpcData.CurrentDeliver, VehToNet(cache.vehicle))
     if not config.useTarget then -- added checks to disable distance checking if polyzone option is used
         CreateThread(function()
             while true do
@@ -116,7 +117,7 @@ local function getDeliveryLocation()
                             SendNUIMessage({
                                 action = 'toggleMeter'
                             })
-                            TriggerServerEvent('qb-taxi:server:NpcPay', meterData.currentFare)
+                            TriggerServerEvent('qb-taxi:server:NpcPay')
                             meterActive = false
                             SendNUIMessage({
                                 action = 'resetMeter'
@@ -327,7 +328,7 @@ function dropNpcPoly()
                     SendNUIMessage({
                         action = 'toggleMeter'
                     })
-                    TriggerServerEvent('qb-taxi:server:NpcPay', meterData.currentFare)
+                    TriggerServerEvent('qb-taxi:server:NpcPay')
                     meterActive = false
                     SendNUIMessage({
                         action = 'resetMeter'

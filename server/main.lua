@@ -5,6 +5,7 @@ local sharedConfig = require 'config.shared'
 local ITEMS = exports.ox_inventory:Items()
 
 local lastPayTime = {}
+local activeFares = {}
 
 local function getPlayerWithTaxiJob(src)
     local player = exports.qbx_core:GetPlayer(src)
@@ -15,19 +16,6 @@ local function getPlayerWithTaxiJob(src)
     return player
 end
 
-local function nearDeliverLocation(src)
-    local ped = GetPlayerPed(src)
-    if not ped or ped == 0 then return false end
-    local coords = GetEntityCoords(ped)
-    for _, v in pairs(sharedConfig.npcLocations.deliverLocations) do
-        local dist = #(coords - v.xyz)
-        if dist < config.deliverLocationMaxDistance then
-            return true
-        end
-    end
-    return false
-end
-
 local function isAllowedVehicleModel(model)
     if type(model) ~= 'string' then return false end
     local lower = model:lower()
@@ -35,6 +23,13 @@ local function isAllowedVehicleModel(model)
         if type(allowed) == 'string' and allowed:lower() == lower then
             return true
         end
+    end
+    return false
+end
+
+local function isAllowedVehicleHash(model)
+    for _, allowed in ipairs(config.allowedVehicleModels) do
+        if model == joaat(allowed) then return true end
     end
     return false
 end
@@ -103,33 +98,54 @@ lib.callback.register('qb-taxi:server:spawnTaxi', function(source, model, coords
     return netId
 end)
 
-RegisterNetEvent('qb-taxi:server:NpcPay', function(payment)
+RegisterNetEvent('qb-taxi:server:startNpcFare', function(pickupIndex, deliverIndex, netId)
     local src = source
     local player = getPlayerWithTaxiJob(src)
-    if not player then
-        lib.print.warn(('qb_taxijob: NpcPay from source %s without taxi job'):format(src))
-        return
-    end
+    if not player or math.type(pickupIndex) ~= 'integer' or math.type(deliverIndex) ~= 'integer' or math.type(netId) ~= 'integer' then return end
 
-    if not nearDeliverLocation(src) then
-        lib.print.warn(('qb_taxijob: NpcPay from source %s not near deliver location'):format(src))
-        DropPlayer(src, 'Attempting To Exploit')
-        return
-    end
+    local pickup = sharedConfig.npcLocations.takeLocations[pickupIndex]
+    local destination = sharedConfig.npcLocations.deliverLocations[deliverIndex]
+    if not pickup or not destination then return end
 
-    local paymentAmount = tonumber(payment)
-    if paymentAmount == nil or paymentAmount <= 0 or paymentAmount > config.maxFare then
-        lib.print.warn(('qb_taxijob: NpcPay from source %s invalid payment %s'):format(src, tostring(payment)))
-        return
-    end
+    local ped = GetPlayerPed(src)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if ped == 0 or not DoesEntityExist(vehicle) or GetEntityType(vehicle) ~= 2 then return end
+    if #(GetEntityCoords(ped) - pickup.xyz) > 15.0 or GetPedInVehicleSeat(vehicle, -1) ~= ped then return end
+    if not isAllowedVehicleHash(GetEntityModel(vehicle)) then return end
+
+    local distance = #(pickup.xyz - destination.xyz)
+    activeFares[src] = {
+        destination = deliverIndex,
+        vehicle = netId,
+        payment = math.min(config.maxFare, math.max(1, math.floor(distance / 1609 * config.farePerMile))),
+        earliestCompletion = os.time() + math.max(10, math.floor(distance / 60)),
+        expiresAt = os.time() + 1800,
+    }
+end)
+
+RegisterNetEvent('qb-taxi:server:NpcPay', function()
+    local src = source
+    local player = getPlayerWithTaxiJob(src)
+    local fare = activeFares[src]
+    if not player or not fare then return end
 
     local now = os.time()
+    if now < fare.earliestCompletion or now > fare.expiresAt then return end
+
+    local ped = GetPlayerPed(src)
+    local vehicle = NetworkGetEntityFromNetworkId(fare.vehicle)
+    local destination = sharedConfig.npcLocations.deliverLocations[fare.destination]
+    if ped == 0 or not DoesEntityExist(vehicle) or GetPedInVehicleSeat(vehicle, -1) ~= ped then return end
+    if #(GetEntityCoords(ped) - destination.xyz) > config.deliverLocationMaxDistance then return end
+
     local last = lastPayTime[src]
     if last and (now - last) < config.payCooldownSeconds then
         lib.print.warn(('qb_taxijob: NpcPay from source %s cooldown'):format(src))
         return
     end
 
+    local paymentAmount = fare.payment
+    activeFares[src] = nil
     local randomAmount = math.random(1, 5)
     local r1, r2 = math.random(1, 5), math.random(1, 5)
     if randomAmount == r1 or randomAmount == r2 then
@@ -154,4 +170,5 @@ end)
 AddEventHandler('playerDropped', function()
     local src = source
     lastPayTime[src] = nil
+    activeFares[src] = nil
 end)
