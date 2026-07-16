@@ -265,7 +265,7 @@ local function calculateFareAmount()
 
             meterData['distanceTraveled'] += (newDistance / 1609)
 
-            local fareAmount = 0
+            local fareAmount
 
             if config.meter.useGpsPrice and pickupLocation and dropOffLocation then
                 local totalRouteDistance = CalculateTravelDistanceBetweenPoints(pickupLocation.x, pickupLocation.y, pickupLocation.z, dropOffLocation.x, dropOffLocation.y, dropOffLocation.z) / 1609
