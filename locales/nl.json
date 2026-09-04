@@ -17,7 +17,11 @@
         "drop_off_npc": "[E] NPC Afzetten",
         "call_npc": "[E] NPC Roepen",
         "blip_name": "Downtown Cab",
-        "taxi_label_1": "Standaard Cab"
+        "taxi_label_1": "Standaard Cab",
+        "no_spawn_point": "Kan geen locatie vinden om de taxi te brengen",
+        "taxi_returned": "Cabine geparkeerd",
+        "request_taxi": "[E] - Taxi aanvragen",
+        "request_taxi_target": "Taxi taxi aanvragen"
     },
     "menu": {
         "taxi_menu_header": "Taxi Voertuigen",
